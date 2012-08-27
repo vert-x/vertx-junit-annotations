@@ -13,19 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.testing.support;
+package org.vertx.java.test.junit;
 
-import org.vertx.java.core.Vertx;
+import java.util.concurrent.CountDownLatch;
+
+import org.vertx.java.core.Handler;
 
 
 /**
  * @author swilliams
  *
  */
-public interface VertxSupport {
+public class CountDownLatchDoneHandler<T> implements Handler<T> {
 
-  void setVertx(Vertx vertx);
+  public final CountDownLatch latch;
 
-  Vertx getVertx();
+  CountDownLatchDoneHandler(final CountDownLatch latch) {
+    this.latch = latch;
+  }
+
+  @Override
+  public void handle(T event) {
+    latch.countDown();
+  }
 
 }

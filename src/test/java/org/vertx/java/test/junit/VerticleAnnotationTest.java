@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.testing.junit;
+package org.vertx.java.test.junit;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -23,10 +23,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.vertx.testing.junit.VertxConfigurableJUnit4Runner;
-import org.vertx.testing.junit.annotations.Verticle;
-import org.vertx.testing.junit.annotations.Verticles;
-import org.vertx.testing.support.VertxTestBase;
+import org.vertx.java.test.QueueReplyHandler;
+import org.vertx.java.test.junit.VertxConfigurableJUnit4Runner;
+import org.vertx.java.test.junit.annotations.TestVerticle;
+import org.vertx.java.test.junit.annotations.TestVerticles;
+import org.vertx.java.test.junit.support.VertxTestBase;
 
 
 /**
@@ -34,7 +35,7 @@ import org.vertx.testing.support.VertxTestBase;
  *
  */
 @RunWith(VertxConfigurableJUnit4Runner.class)
-@Verticle(main="test_verticle0.js")
+@TestVerticle(main="test_verticle0.js")
 public class VerticleAnnotationTest extends VertxTestBase {
 
   private long timeout = 10L;
@@ -63,7 +64,7 @@ public class VerticleAnnotationTest extends VertxTestBase {
   }
 
   @Test
-  @Verticle(main="test_verticle1.js")
+  @TestVerticle(main="test_verticle1.js")
   public void testVerticle1() {
     String QUESTION = "Oh no. Not penalties again...";
 
@@ -82,8 +83,8 @@ public class VerticleAnnotationTest extends VertxTestBase {
   }
 
   @Test
-  @Verticles({
-    @Verticle(main="test_verticle2.js")
+  @TestVerticles({
+    @TestVerticle(main="test_verticle2.js")
   })
   public void testVerticles2() {
     String QUESTION = "Smashing fun, what!";

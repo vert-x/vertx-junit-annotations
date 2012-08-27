@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.testing.junit.annotations;
+package org.vertx.java.test.junit.support;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.vertx.java.deploy.impl.VerticleManager;
 
 
 /**
  * @author swilliams
  *
  */
-@Documented
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface VertxConfig {
+public interface VerticleManagerSupport {
 
-  String hostname() default "localhost";
+  VerticleManager getManager();
 
-  int port();
+  void setManager(VerticleManager manager);
 
 }

@@ -13,28 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.testing.junit;
+package org.vertx.java.test.junit.annotations;
 
-import java.util.concurrent.CountDownLatch;
-
-import org.vertx.java.core.Handler;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 
 /**
  * @author swilliams
  *
  */
-public class CountDownLatchDoneHandler<T> implements Handler<T> {
+@Documented
+@Inherited
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface TestVerticle {
 
-  public final CountDownLatch latch;
+  boolean worker() default false;
 
-  CountDownLatchDoneHandler(final CountDownLatch latch) {
-    this.latch = latch;
-  }
+  String main();
 
-  @Override
-  public void handle(T event) {
-    latch.countDown();
-  }
+  int instances() default 1;
+
+  String jsonConfig() default "{}";
+
+  String[] urls() default {};
 
 }

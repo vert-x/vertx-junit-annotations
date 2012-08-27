@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.testing.junit;
+package org.vertx.java.test.junit;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,10 +30,10 @@ import java.util.concurrent.TimeUnit;
 import org.junit.runner.Description;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.deploy.impl.VerticleManager;
-import org.vertx.testing.junit.annotations.Module;
-import org.vertx.testing.junit.annotations.Modules;
-import org.vertx.testing.junit.annotations.Verticle;
-import org.vertx.testing.junit.annotations.Verticles;
+import org.vertx.java.test.junit.annotations.TestModule;
+import org.vertx.java.test.junit.annotations.TestModules;
+import org.vertx.java.test.junit.annotations.TestVerticle;
+import org.vertx.java.test.junit.annotations.TestVerticles;
 
 
 /**
@@ -52,10 +52,10 @@ public class Deployer {
   }
 
   public void deploy(Description description) {
-    final Modules amodules = description.getAnnotation(Modules.class);
-    final Module amodule = description.getAnnotation(Module.class);
-    final Verticles verticles = description.getAnnotation(Verticles.class);
-    final Verticle verticle = description.getAnnotation(Verticle.class);
+    final TestModules amodules = description.getAnnotation(TestModules.class);
+    final TestModule amodule = description.getAnnotation(TestModule.class);
+    final TestVerticles verticles = description.getAnnotation(TestVerticles.class);
+    final TestVerticle verticle = description.getAnnotation(TestVerticle.class);
 
     deployModules(amodules);
     deployModule(amodule);
@@ -64,14 +64,14 @@ public class Deployer {
   }
 
 
-  private void deployVerticles(Verticles verticles) {
+  private void deployVerticles(TestVerticles verticles) {
 
     if (verticles == null) {
       return;
     }
 
     final CountDownLatch latch = new CountDownLatch(verticles.value().length);
-    for (Verticle v : verticles.value()) {
+    for (TestVerticle v : verticles.value()) {
       JsonObject config = getJsonConfig(v.jsonConfig());
 
       URL[] urls = findVerticleURLs(v);
@@ -81,7 +81,7 @@ public class Deployer {
     await(latch);
   }
 
-  private void deployVerticle(Verticle v) {
+  private void deployVerticle(TestVerticle v) {
     if (v == null) {
       return;
     }
@@ -94,14 +94,14 @@ public class Deployer {
     await(latch);
   }
 
-  private void deployModules(Modules amodules) {
+  private void deployModules(TestModules amodules) {
     if (amodules == null) {
       return;
     }
 
     final CountDownLatch latch = new CountDownLatch(amodules.value().length);
 
-    for (Module m : amodules.value()) {
+    for (TestModule m : amodules.value()) {
       JsonObject config = getJsonConfig(m.jsonConfig());
       manager.deployMod(m.name(), config, m.instances(), modDir, new CountDownLatchDoneHandler<String>(latch));
     }
@@ -109,7 +109,7 @@ public class Deployer {
     await(latch);
   }
 
-  private void deployModule(Module m) {
+  private void deployModule(TestModule m) {
     if (m == null) {
       return;
     }
@@ -122,7 +122,7 @@ public class Deployer {
     await(latch);
   }
 
-  private URL[] findVerticleURLs(Verticle v) {
+  private URL[] findVerticleURLs(TestVerticle v) {
     Set<URL> urlSet = new HashSet<URL>();
 
     if (v.urls().length > 0) {

@@ -13,36 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.testing.junit;
+package org.vertx.java.test.junit.support;
 
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.vertx.java.core.Vertx;
 
 
 /**
  * @author swilliams
  *
  */
-public class VertxRule implements TestRule {
+public interface VertxSupport {
 
-  private final Deployer deployer;
+  void setVertx(Vertx vertx);
 
-  public VertxRule(Deployer deployer) {
-    this.deployer = deployer;
-  }
-
-  @Override
-  public Statement apply(final Statement base, final Description description) {
-
-    return new Statement() {
-
-      @Override
-      public void evaluate() throws Throwable {
-        deployer.deploy(description);
-        base.evaluate();
-      }};
-
-  }
+  Vertx getVertx();
 
 }

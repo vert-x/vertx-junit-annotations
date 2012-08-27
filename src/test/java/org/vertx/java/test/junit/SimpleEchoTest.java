@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.testing.junit;
+package org.vertx.java.test.junit;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -24,8 +24,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
-import org.vertx.testing.junit.VertxConfigurableJUnit4Runner;
-import org.vertx.testing.support.VertxTestBase;
+import org.vertx.java.test.QueueReplyHandler;
+import org.vertx.java.test.junit.VertxConfigurableJUnit4Runner;
+import org.vertx.java.test.junit.support.VertxTestBase;
 
 
 /**

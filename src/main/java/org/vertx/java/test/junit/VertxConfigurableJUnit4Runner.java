@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.testing.junit;
+package org.vertx.java.test.junit;
 
 import java.io.File;
 import java.util.HashSet;
@@ -29,9 +29,9 @@ import org.junit.runners.model.InitializationError;
 import org.vertx.java.core.impl.DefaultVertx;
 import org.vertx.java.core.impl.VertxInternal;
 import org.vertx.java.deploy.impl.VerticleManager;
-import org.vertx.testing.junit.annotations.VertxConfig;
-import org.vertx.testing.support.VerticleManagerSupport;
-import org.vertx.testing.support.VertxSupport;
+import org.vertx.java.test.junit.annotations.VertxConfig;
+import org.vertx.java.test.junit.support.VerticleManagerSupport;
+import org.vertx.java.test.junit.support.VertxSupport;
 
 
 /**

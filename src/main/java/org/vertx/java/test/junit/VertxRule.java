@@ -13,30 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.testing.junit.annotations;
+package org.vertx.java.test.junit;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
 
 /**
  * @author swilliams
  *
  */
-@Documented
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
-public @interface Module {
+public class VertxRule implements TestRule {
 
-  String name();
+  private final Deployer deployer;
 
-  int instances() default 1;
+  public VertxRule(Deployer deployer) {
+    this.deployer = deployer;
+  }
 
-  String jsonConfig() default "{}";
+  @Override
+  public Statement apply(final Statement base, final Description description) {
+
+    return new Statement() {
+
+      @Override
+      public void evaluate() throws Throwable {
+        deployer.deploy(description);
+        base.evaluate();
+      }};
+
+  }
 
 }

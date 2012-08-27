@@ -13,19 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.testing.support;
+package org.vertx.java.test.junit.annotations;
 
-import org.vertx.java.deploy.impl.VerticleManager;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 
 /**
  * @author swilliams
  *
  */
-public interface VerticleManagerSupport {
+@Documented
+@Inherited
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface TestModules {
 
-  VerticleManager getManager();
-
-  void setManager(VerticleManager manager);
+  TestModule[] value();
 
 }

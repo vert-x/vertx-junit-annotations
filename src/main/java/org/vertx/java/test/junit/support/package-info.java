@@ -13,36 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.testing.support;
-
-import org.vertx.java.core.Vertx;
-import org.vertx.java.deploy.impl.VerticleManager;
-
-
 /**
  * @author swilliams
  *
  */
-public class VertxTestBase implements VertxSupport, VerticleManagerSupport {
-
-  private Vertx vertx;
-
-  private VerticleManager manager;
-
-  public void setVertx(Vertx vertx) {
-    this.vertx = vertx;
-  }
-
-  public Vertx getVertx() {
-    return vertx;
-  }
-
-  public VerticleManager getManager() {
-    return manager;
-  }
-
-  public void setManager(VerticleManager manager) {
-    this.manager = manager;
-  }
-
-}
+package org.vertx.java.test.junit.support;

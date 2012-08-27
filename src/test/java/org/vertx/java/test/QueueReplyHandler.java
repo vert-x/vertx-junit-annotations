@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.testing.junit;
+package org.vertx.java.test;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -27,12 +27,12 @@ import org.vertx.java.core.eventbus.Message;
  *
  * @param <T>
  */
-final class QueueReplyHandler<T> implements Handler<Message<T>> {
+public class QueueReplyHandler<T> implements Handler<Message<T>> {
 
   private final LinkedBlockingQueue<T> queue;
   private final long timeout;
 
-  QueueReplyHandler(LinkedBlockingQueue<T> queue, long timeout) {
+  public QueueReplyHandler(LinkedBlockingQueue<T> queue, long timeout) {
     this.queue = queue;
     this.timeout = timeout;
   }
