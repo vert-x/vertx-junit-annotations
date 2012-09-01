@@ -33,7 +33,7 @@ function testSpring() {
 
 tu.registerTests(this);
 
-var config = {springConfig: 'testConfig.xml'}
+var config = {springConfig: 'applicationConfig.xml'}
 var modID = vertx.deployModule('spring-v1.0', config, 1, function() {
   tu.appReady();
 });

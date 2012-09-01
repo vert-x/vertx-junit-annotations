@@ -42,7 +42,6 @@ public class VertxRule implements TestRule {
         deployer.deploy(description);
         base.evaluate();
       }};
-
   }
 
 }

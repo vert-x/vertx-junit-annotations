@@ -23,10 +23,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.vertx.java.test.QueueReplyHandler;
 import org.vertx.java.test.junit.VertxConfigurableJUnit4Runner;
 import org.vertx.java.test.junit.annotations.TestVerticle;
 import org.vertx.java.test.junit.annotations.TestVerticles;
+import org.vertx.java.test.junit.support.QueueReplyHandler;
 import org.vertx.java.test.junit.support.VertxTestBase;
 
 

@@ -26,6 +26,4 @@ public interface VertxSupport {
 
   void setVertx(Vertx vertx);
 
-  Vertx getVertx();
-
 }

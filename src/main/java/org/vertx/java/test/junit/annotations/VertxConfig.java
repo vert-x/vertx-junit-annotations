@@ -35,6 +35,8 @@ public @interface VertxConfig {
 
   String hostname() default "localhost";
 
-  int port();
+  int port() default -1;
+
+  long shutdownTimeoutSeconds() default 30L;
 
 }

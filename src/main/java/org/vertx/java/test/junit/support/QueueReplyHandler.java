@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.java.test;
+package org.vertx.java.test.junit.support;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -30,18 +30,32 @@ import org.vertx.java.core.eventbus.Message;
 public class QueueReplyHandler<T> implements Handler<Message<T>> {
 
   private final LinkedBlockingQueue<T> queue;
+
   private final long timeout;
 
+  private final TimeUnit timeUnit;
+
+  public QueueReplyHandler(LinkedBlockingQueue<T> queue) {
+    this(queue, 5000L);
+  }
+
   public QueueReplyHandler(LinkedBlockingQueue<T> queue, long timeout) {
+    this(queue, timeout, TimeUnit.MILLISECONDS);
+  }
+
+  public QueueReplyHandler(LinkedBlockingQueue<T> queue, long timeout, TimeUnit timeUnit) {
     this.queue = queue;
     this.timeout = timeout;
+    this.timeUnit = timeUnit;
   }
 
   @Override
   public void handle(Message<T> event) {
 
     try {
-      queue.offer(event.body, timeout, TimeUnit.SECONDS);
+      if (event != null && event.body != null) {
+        queue.offer(event.body, timeout, timeUnit);
+      }
 
     } catch (InterruptedException e) {
       Assert.fail(e.getMessage());

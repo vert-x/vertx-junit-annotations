@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.runner.Description;
 import org.vertx.java.core.json.JsonObject;
@@ -42,25 +43,25 @@ import org.vertx.java.test.junit.annotations.TestVerticles;
  */
 public class Deployer {
 
+  private final AtomicInteger deploymentCounter = new AtomicInteger(0);
+
   private final File modDir;
-  
+
   private final VerticleManager manager;
 
-  Deployer(VerticleManager manager, File modDir) {
+  private long shutdownTimeout;
+
+  Deployer(VerticleManager manager, File modDir, long shutdownTimeout) {
     this.manager = manager;
     this.modDir = modDir;
+    this.shutdownTimeout = shutdownTimeout;
   }
 
   public void deploy(Description description) {
-    final TestModules amodules = description.getAnnotation(TestModules.class);
-    final TestModule amodule = description.getAnnotation(TestModule.class);
-    final TestVerticles verticles = description.getAnnotation(TestVerticles.class);
-    final TestVerticle verticle = description.getAnnotation(TestVerticle.class);
-
-    deployModules(amodules);
-    deployModule(amodule);
-    deployVerticles(verticles);
-    deployVerticle(verticle);    
+    deployModules(description.getAnnotation(TestModules.class));
+    deployModule(description.getAnnotation(TestModule.class));
+    deployVerticles(description.getAnnotation(TestVerticles.class));
+    deployVerticle(description.getAnnotation(TestVerticle.class));
   }
 
 
@@ -76,6 +77,7 @@ public class Deployer {
 
       URL[] urls = findVerticleURLs(v);
       manager.deployVerticle(v.worker(), v.main(), config, urls, v.instances(), modDir, new CountDownLatchDoneHandler<String>(latch));
+      deploymentCounter.incrementAndGet();
     }
 
     await(latch);
@@ -89,7 +91,9 @@ public class Deployer {
     final CountDownLatch latch = new CountDownLatch(1);
     JsonObject config = getJsonConfig(v.jsonConfig());
     URL[] urls = findVerticleURLs(v);
+
     manager.deployVerticle(v.worker(), v.main(), config, urls, v.instances(), modDir, new CountDownLatchDoneHandler<String>(latch));
+    deploymentCounter.incrementAndGet();
 
     await(latch);
   }
@@ -104,6 +108,7 @@ public class Deployer {
     for (TestModule m : amodules.value()) {
       JsonObject config = getJsonConfig(m.jsonConfig());
       manager.deployMod(m.name(), config, m.instances(), modDir, new CountDownLatchDoneHandler<String>(latch));
+      deploymentCounter.incrementAndGet();
     }
 
     await(latch);
@@ -118,6 +123,7 @@ public class Deployer {
 
     JsonObject config = getJsonConfig(m.jsonConfig());
     manager.deployMod(m.name(), config, m.instances(), modDir, new CountDownLatchDoneHandler<String>(latch));
+    deploymentCounter.incrementAndGet();
 
     await(latch);
   }
@@ -127,24 +133,52 @@ public class Deployer {
 
     if (v.urls().length > 0) {
       for (String path : v.urls()) {
+
         try {
 
           URL url = new File(path).toURI().toURL();
           urlSet.add(url);
 
         } catch (Exception e) {
+          // TODO log something here
           e.printStackTrace();
         }
       }
     }
 
     try {
-      // contortions to get parent
-      URL url = getClass().getClassLoader().getResource(v.main());
-      url = Paths.get(url.toURI()).getParent().toUri().toURL();
-      urlSet.add(url);
+      String main = v.main();
+      if (main.indexOf(':') > -1) {
+        main = main.substring(main.indexOf(':') + 1);
+      }
+
+      // check for class, prep for locating root URL
+      int parts = 0;
+      if (!main.endsWith(".xml")) {
+        parts = main.split("\\.").length;
+        main = main.replaceAll("\\.", "/");
+        main = main + ".class";
+      }
+
+      // contortions to get parent, may not be entirely accurate...
+      // URL url = getClass().getClassLoader().getResource(main);
+      URL url = Thread.currentThread().getContextClassLoader().getResource(main);
+
+      if (url != null) {
+        Path path = Paths.get(url.toURI());
+
+        int i = parts;
+        while (i > 0) {
+          path = path.getParent();
+          i--;
+        }
+
+        url = path.toUri().toURL();
+        urlSet.add(url);
+      }
 
     } catch (Exception e) {
+      // TODO log something here
       e.printStackTrace();
     }
 
@@ -177,11 +211,16 @@ public class Deployer {
 
   private void await(final CountDownLatch latch) {
     try {
-      latch.await(30L, TimeUnit.SECONDS);
+      latch.await(shutdownTimeout, TimeUnit.SECONDS);
 
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
+      // TODO log something here
       e.printStackTrace();
     }
   }
+
+  public int getDeploymentCount() {
+    return deploymentCounter.get();
+  }
+
 }

@@ -15,7 +15,16 @@
  */
 package org.vertx.java.test.junit.support;
 
+import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.Assert;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
+import org.vertx.java.core.eventbus.EventBus;
+import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.deploy.impl.VerticleManager;
 
 
@@ -23,26 +32,110 @@ import org.vertx.java.deploy.impl.VerticleManager;
  * @author swilliams
  *
  */
-public class VertxTestBase implements VertxSupport, VerticleManagerSupport {
+public abstract class VertxTestBase implements VertxSupport, VerticleManagerSupport {
 
   private Vertx vertx;
 
   private VerticleManager manager;
 
+  private long awaitTimeout = 5000L;
+
+  protected VertxTestBase() {
+    super();
+  }
+
+  @Override
   public void setVertx(Vertx vertx) {
     this.vertx = vertx;
   }
 
-  public Vertx getVertx() {
+  @Override
+  public void setManager(VerticleManager manager) {
+    this.manager = manager;
+  }
+
+  protected Vertx getVertx() {
     return vertx;
   }
 
-  public VerticleManager getManager() {
+  protected EventBus getEventBus() {
+    return vertx.eventBus();
+  }
+
+  protected VerticleManager getManager() {
     return manager;
   }
 
-  public void setManager(VerticleManager manager) {
-    this.manager = manager;
+  protected final void setAwaitTimeout(long awaitTimeout) {
+    this.awaitTimeout = awaitTimeout;
+  }
+
+  protected final void lightSleep(long timeout) {
+    try {
+      Thread.sleep(timeout);
+    } catch (InterruptedException e) {
+      //
+    }
+  }
+
+  protected final void testMessageEcho(String address, String message) throws Exception {
+
+    final long timeout = 2000L;
+    final TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+    final LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
+
+    getVertx().eventBus().send(address, message, new QueueReplyHandler<String>(queue, timeout, timeUnit));
+
+    try {
+      String answer = queue.poll(timeout, timeUnit);
+      System.out.printf("For %s Q:%s A:%s %n", address, message, message.equals(answer));
+      Assert.assertTrue(message.equals(answer));
+
+    } catch (InterruptedException e) {
+      //
+    }
+  }
+
+  protected final <T, M extends Message<T>> String registerHandler(String address, Handler<M> handler) {
+    final CountDownLatch latch = new CountDownLatch(1);
+    String handlerId = vertx.eventBus().registerHandler(address, handler, new SimpleLatchAsyncResultHandler(latch));
+    await(latch);
+    return handlerId;
+  }
+
+  protected final <T, M extends Message<T>> String registerLocalHandler(String address, Handler<M> handler) {
+    final CountDownLatch latch = new CountDownLatch(1);
+    String handlerId = vertx.eventBus().registerLocalHandler(address, handler);
+    await(latch);
+    return handlerId;
+  }
+
+  protected final void unregisterHandlers(String... handlers) {
+    unregisterHandlers(Arrays.asList(handlers));
+  }
+
+  protected final void unregisterHandlers(Iterable<String> iterable) {
+    for (String handler : iterable) {
+      System.out.printf("unregisterHandler: %s %n", handler);
+      getVertx().eventBus().unregisterHandler(handler);
+    }
+  }
+
+  protected final void await(CountDownLatch latch) {
+    await(latch, this.awaitTimeout);
+  }
+
+  protected final void await(CountDownLatch latch, long timeout) {
+    await(latch, timeout, TimeUnit.MILLISECONDS);
+  }
+
+  protected final void await(CountDownLatch latch, long timeout, TimeUnit timeUnit) {
+    try {
+      latch.await(timeout, timeUnit);
+    }
+    catch (InterruptedException e) {
+      //
+    }
   }
 
 }

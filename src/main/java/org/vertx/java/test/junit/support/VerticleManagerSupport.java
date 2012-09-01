@@ -24,8 +24,6 @@ import org.vertx.java.deploy.impl.VerticleManager;
  */
 public interface VerticleManagerSupport {
 
-  VerticleManager getManager();
-
   void setManager(VerticleManager manager);
 
 }
