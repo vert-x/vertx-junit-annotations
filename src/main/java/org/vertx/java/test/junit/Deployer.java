@@ -16,14 +16,7 @@
 package org.vertx.java.test.junit;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,6 +28,7 @@ import org.vertx.java.test.junit.annotations.TestModule;
 import org.vertx.java.test.junit.annotations.TestModules;
 import org.vertx.java.test.junit.annotations.TestVerticle;
 import org.vertx.java.test.junit.annotations.TestVerticles;
+import org.vertx.java.test.junit.support.DeploymentUtils;
 
 
 /**
@@ -73,9 +67,9 @@ public class Deployer {
 
     final CountDownLatch latch = new CountDownLatch(verticles.value().length);
     for (TestVerticle v : verticles.value()) {
-      JsonObject config = getJsonConfig(v.jsonConfig());
+      JsonObject config = DeploymentUtils.getJsonConfig(v.jsonConfig());
 
-      URL[] urls = findVerticleURLs(v);
+      URL[] urls = DeploymentUtils.findVerticleURLs(v);
       manager.deployVerticle(v.worker(), v.main(), config, urls, v.instances(), modDir, new CountDownLatchDoneHandler<String>(latch));
       deploymentCounter.incrementAndGet();
     }
@@ -89,8 +83,8 @@ public class Deployer {
     }
 
     final CountDownLatch latch = new CountDownLatch(1);
-    JsonObject config = getJsonConfig(v.jsonConfig());
-    URL[] urls = findVerticleURLs(v);
+    JsonObject config = DeploymentUtils.getJsonConfig(v.jsonConfig());
+    URL[] urls = DeploymentUtils.findVerticleURLs(v);
 
     manager.deployVerticle(v.worker(), v.main(), config, urls, v.instances(), modDir, new CountDownLatchDoneHandler<String>(latch));
     deploymentCounter.incrementAndGet();
@@ -106,7 +100,7 @@ public class Deployer {
     final CountDownLatch latch = new CountDownLatch(amodules.value().length);
 
     for (TestModule m : amodules.value()) {
-      JsonObject config = getJsonConfig(m.jsonConfig());
+      JsonObject config = DeploymentUtils.getJsonConfig(m.jsonConfig());
       manager.deployMod(m.name(), config, m.instances(), modDir, new CountDownLatchDoneHandler<String>(latch));
       deploymentCounter.incrementAndGet();
     }
@@ -121,92 +115,11 @@ public class Deployer {
 
     final CountDownLatch latch = new CountDownLatch(1);
 
-    JsonObject config = getJsonConfig(m.jsonConfig());
+    JsonObject config = DeploymentUtils.getJsonConfig(m.jsonConfig());
     manager.deployMod(m.name(), config, m.instances(), modDir, new CountDownLatchDoneHandler<String>(latch));
     deploymentCounter.incrementAndGet();
 
     await(latch);
-  }
-
-  private URL[] findVerticleURLs(TestVerticle v) {
-    Set<URL> urlSet = new HashSet<URL>();
-
-    if (v.urls().length > 0) {
-      for (String path : v.urls()) {
-
-        try {
-
-          URL url = new File(path).toURI().toURL();
-          urlSet.add(url);
-
-        } catch (Exception e) {
-          // TODO log something here
-          e.printStackTrace();
-        }
-      }
-    }
-
-    try {
-      String main = v.main();
-      if (main.indexOf(':') > -1) {
-        main = main.substring(main.indexOf(':') + 1);
-      }
-
-      // check for class, prep for locating root URL
-      int parts = 0;
-      if (!main.endsWith(".xml")) {
-        parts = main.split("\\.").length;
-        main = main.replaceAll("\\.", "/");
-        main = main + ".class";
-      }
-
-      // contortions to get parent, may not be entirely accurate...
-      // URL url = getClass().getClassLoader().getResource(main);
-      URL url = Thread.currentThread().getContextClassLoader().getResource(main);
-
-      if (url != null) {
-        Path path = Paths.get(url.toURI());
-
-        int i = parts;
-        while (i > 0) {
-          path = path.getParent();
-          i--;
-        }
-
-        url = path.toUri().toURL();
-        urlSet.add(url);
-      }
-
-    } catch (Exception e) {
-      // TODO log something here
-      e.printStackTrace();
-    }
-
-    URL[] urls = new URL[urlSet.size()];
-    return urlSet.toArray(urls);
-  }
-
-  private JsonObject getJsonConfig(String jsonConfig) {
-    JsonObject config;
-
-    if (jsonConfig.startsWith("file:")) {
-      String filename = jsonConfig.replaceFirst("file:", "");
-      Path json = new File(filename).toPath();
-
-      try {
-        Charset utf8 = Charset.forName("UTF-8");
-        byte[] bytes = Files.readAllBytes(json);
-        config = new JsonObject(new String(bytes, utf8));
-
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    else {
-      config = new JsonObject(jsonConfig);
-    }
-
-    return config;
   }
 
   private void await(final CountDownLatch latch) {

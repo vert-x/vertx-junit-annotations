@@ -23,28 +23,35 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.Vertx;
 import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.test.junit.VertxConfigurableJUnit4Runner;
 import org.vertx.java.test.junit.support.QueueReplyHandler;
-import org.vertx.java.test.junit.support.VertxTestBase;
+import org.vertx.java.test.junit.support.VertxSupport;
 
 
 /**
  * @author swilliams
  *
  */
-@RunWith(VertxConfigurableJUnit4Runner.class)
-public class SimpleEchoTest extends VertxTestBase {
+@RunWith(VertxConfigurationJUnit4Runner.class)
+public class SimpleEchoTest implements VertxSupport {
 
   private static final String QUESTION = "Hello World";
 
   private static final String TEST_ADDRESS = "vertx.test.echo";
 
+  private Vertx vertx;
+
+  @Override
+  public void setVertx(Vertx vertx) {
+    this.vertx = vertx;
+  }
+
   @Before
   public void setup() {
-    Assert.assertNotNull(super.getVertx());
+    Assert.assertNotNull(vertx);
 
-    getVertx().eventBus().registerHandler(TEST_ADDRESS, new Handler<Message<String>>() {
+    vertx.eventBus().registerHandler(TEST_ADDRESS, new Handler<Message<String>>() {
       @Override
       public void handle(Message<String> event) {
         if (QUESTION.equals(event.body)) {
@@ -68,7 +75,7 @@ public class SimpleEchoTest extends VertxTestBase {
     final long timeout = 10L;
     final LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
 
-    getVertx().eventBus().send(TEST_ADDRESS, QUESTION, new QueueReplyHandler<String>(queue, timeout));
+    vertx.eventBus().send(TEST_ADDRESS, QUESTION, new QueueReplyHandler<String>(queue, timeout));
 
     try {
       String answer = queue.poll(timeout, TimeUnit.SECONDS);

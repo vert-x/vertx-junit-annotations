@@ -23,9 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.vertx.java.test.junit.VertxConfigurableJUnit4Runner;
-import org.vertx.java.test.junit.annotations.TestModule;
-import org.vertx.java.test.junit.annotations.TestModules;
+import org.vertx.java.test.junit.annotations.TestVerticle;
+import org.vertx.java.test.junit.annotations.TestVerticles;
 import org.vertx.java.test.junit.support.QueueReplyHandler;
 import org.vertx.java.test.junit.support.VertxTestBase;
 
@@ -34,11 +33,9 @@ import org.vertx.java.test.junit.support.VertxTestBase;
  * @author swilliams
  *
  */
-@RunWith(VertxConfigurableJUnit4Runner.class)
-@TestModules({
-  @TestModule(name="test.echo0-v1.0")
-})
-public class ModuleAnnotationTest extends VertxTestBase {
+@RunWith(VertxConfigurationJUnit4Runner.class)
+@TestVerticle(main="test_verticle0.js")
+public class VerticleRunWithTest extends VertxTestBase {
 
   private long timeout = 10L;
 
@@ -48,13 +45,12 @@ public class ModuleAnnotationTest extends VertxTestBase {
   }
 
   @Test
-  public void testModuleEcho0() {
-
-    String QUESTION = "How now brown cow?";
+  public void testVerticle0() {
+    String QUESTION = "I say, anyone for cricket?";
 
     final LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
 
-    getVertx().eventBus().send("vertx.test.mods.echo0", QUESTION, new QueueReplyHandler<String>(queue, timeout));
+    getVertx().eventBus().send("vertx.test.echo0", QUESTION, new QueueReplyHandler<String>(queue, timeout));
     
     try {
       String answer = queue.poll(timeout, TimeUnit.SECONDS);
@@ -62,19 +58,18 @@ public class ModuleAnnotationTest extends VertxTestBase {
       Assert.assertTrue(QUESTION.equals(answer));
 
     } catch (InterruptedException e) {
-      Assert.fail(e.getMessage());
+      //
     }
-
   }
 
   @Test
-  @TestModule(name="test.echo1-v1.0")
-  public void testModuleEcho1() {
-    String QUESTION = "Is it beer oclock yet?";
+  @TestVerticle(main="test_verticle1.js")
+  public void testVerticle1() {
+    String QUESTION = "Oh no. Not penalties again...";
 
     final LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
 
-    getVertx().eventBus().send("vertx.test.mods.echo1", QUESTION, new QueueReplyHandler<String>(queue, timeout));
+    getVertx().eventBus().send("vertx.test.echo1", QUESTION, new QueueReplyHandler<String>(queue, timeout));
     
     try {
       String answer = queue.poll(timeout, TimeUnit.SECONDS);
@@ -82,21 +77,20 @@ public class ModuleAnnotationTest extends VertxTestBase {
       Assert.assertTrue(QUESTION.equals(answer));
 
     } catch (InterruptedException e) {
-      Assert.fail(e.getMessage());
+      //
     }
-
   }
 
   @Test
-  @TestModules({
-    @TestModule(name="test.echo2-v1.0")
+  @TestVerticles({
+    @TestVerticle(main="test_verticle2.js")
   })
-  public void testModulesEcho2() {
-    String QUESTION = "What ho!";
+  public void testVerticles2() {
+    String QUESTION = "Smashing fun, what!";
 
     final LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
 
-    getVertx().eventBus().send("vertx.test.mods.echo2", QUESTION, new QueueReplyHandler<String>(queue, timeout));
+    getVertx().eventBus().send("vertx.test.echo2", QUESTION, new QueueReplyHandler<String>(queue, timeout));
     
     try {
       String answer = queue.poll(timeout, TimeUnit.SECONDS);
@@ -104,9 +98,8 @@ public class ModuleAnnotationTest extends VertxTestBase {
       Assert.assertTrue(QUESTION.equals(answer));
 
     } catch (InterruptedException e) {
-      Assert.fail(e.getMessage());
+      //
     }
-
   }
 
 }

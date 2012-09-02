@@ -13,28 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.java.test.junit;
+package org.vertx.java.test.junit.annotations;
 
-import java.util.concurrent.CountDownLatch;
-
-import org.vertx.java.core.Handler;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 
 /**
  * @author swilliams
  *
  */
-public class CountDownLatchDoneHandler<T> implements Handler<T> {
+@Documented
+@Inherited
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface VertxConfiguration {
 
-  private final CountDownLatch latch;
+  String hostname() default "localhost";
 
-  public CountDownLatchDoneHandler(final CountDownLatch latch) {
-    this.latch = latch;
-  }
+  int port() default -1;
 
-  @Override
-  public void handle(T event) {
-    latch.countDown();
-  }
+  long shutdownTimeoutSeconds() default 30L;
+
+  String modsDir() default "build/tmp/test-mods";
 
 }

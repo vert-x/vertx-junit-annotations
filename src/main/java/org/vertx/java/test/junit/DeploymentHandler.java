@@ -13,30 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.java.test.junit.annotations;
+package org.vertx.java.test.junit;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+
+import org.vertx.java.core.Handler;
 
 
 /**
  * @author swilliams
  *
  */
-@Documented
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface VertxConfig {
+public class DeploymentHandler implements Handler<String> {
 
-  String hostname() default "localhost";
+  private final CountDownLatch latch;
 
-  int port() default -1;
+  private final Set<String> deploymentIDs = new HashSet<>();
 
-  long shutdownTimeoutSeconds() default 30L;
+  public DeploymentHandler(final CountDownLatch latch) {
+    this.latch = latch;
+  }
+
+  @Override
+  public void handle(String event) {
+    if (event != null) {
+      deploymentIDs.add(event);
+    }
+    latch.countDown();
+  }
+
+  public Set<String> getDeploymentIDs() {
+    return deploymentIDs;
+  }
 
 }

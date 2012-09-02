@@ -20,44 +20,41 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import org.vertx.java.test.junit.VertxConfigurableJUnit4Runner;
+import org.vertx.java.core.Vertx;
+import org.vertx.java.core.impl.DefaultVertx;
+import org.vertx.java.deploy.impl.VerticleManager;
 import org.vertx.java.test.junit.annotations.TestVerticle;
 import org.vertx.java.test.junit.annotations.TestVerticles;
 import org.vertx.java.test.junit.support.QueueReplyHandler;
-import org.vertx.java.test.junit.support.VertxTestBase;
 
 
 /**
  * @author swilliams
  *
  */
-@RunWith(VertxConfigurableJUnit4Runner.class)
-@TestVerticle(main="test_verticle0.js")
-public class VerticleAnnotationTest extends VertxTestBase {
+public class VerticleMethodRuleTest {
+
+  private final DefaultVertx vertx = new DefaultVertx();
+
+  private final VerticleManager manager = new VerticleManager(vertx);
+
+  @Rule
+  public VertxTestRule rule = new VertxTestRule(manager);
 
   private long timeout = 10L;
+
+  public Vertx getVertx() {
+    return vertx;
+  }
 
   @Before
   public void setup() {
     this.timeout = Long.parseLong(System.getProperty("vertx.test.timeout", "15L"));
-  }
-
-  @Test
-  public void testVerticle0() {
-    String QUESTION = "I say, anyone for cricket?";
-
-    final LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
-
-    getVertx().eventBus().send("vertx.test.echo0", QUESTION, new QueueReplyHandler<String>(queue, timeout));
-    
     try {
-      String answer = queue.poll(timeout, TimeUnit.SECONDS);
-      System.out.println("answer: " + answer);
-      Assert.assertTrue(QUESTION.equals(answer));
-
+      Thread.sleep(2000L);
     } catch (InterruptedException e) {
       //
     }
