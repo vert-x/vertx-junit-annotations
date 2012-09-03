@@ -82,14 +82,13 @@ public abstract class VertxTestBase implements VertxAware, VerticleManagerAware 
 
   protected final void testMessageEcho(String address, String message) throws Exception {
 
-    final long timeout = 2000L;
     final TimeUnit timeUnit = TimeUnit.MILLISECONDS;
     final LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
 
-    getVertx().eventBus().send(address, message, new QueueReplyHandler<String>(queue, timeout, timeUnit));
+    getVertx().eventBus().send(address, message, new QueueReplyHandler<String>(queue, AWAIT_TIMEOUT, timeUnit));
 
     try {
-      String answer = queue.poll(timeout, timeUnit);
+      String answer = queue.poll(AWAIT_TIMEOUT, timeUnit);
       System.out.printf("For %s Q:%s A:%s %n", address, message, message.equals(answer));
       Assert.assertTrue(message.equals(answer));
 
