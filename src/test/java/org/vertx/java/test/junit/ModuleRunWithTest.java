@@ -26,7 +26,6 @@ import org.junit.runner.RunWith;
 import org.vertx.java.test.TestModule;
 import org.vertx.java.test.TestModules;
 import org.vertx.java.test.VertxTestBase;
-import org.vertx.java.test.junit.old.VertxConfigurationJUnit4Runner;
 import org.vertx.java.test.utils.QueueReplyHandler;
 
 
@@ -34,7 +33,7 @@ import org.vertx.java.test.utils.QueueReplyHandler;
  * @author swilliams
  *
  */
-@RunWith(VertxConfigurationJUnit4Runner.class)
+@RunWith(VertxJUnit4ClassRunner.class)
 @TestModules({
   @TestModule(name="test.echo0-v1.0")
 })

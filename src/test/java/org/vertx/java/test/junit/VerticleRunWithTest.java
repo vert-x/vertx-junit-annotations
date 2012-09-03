@@ -26,7 +26,6 @@ import org.junit.runner.RunWith;
 import org.vertx.java.test.TestVerticle;
 import org.vertx.java.test.TestVerticles;
 import org.vertx.java.test.VertxTestBase;
-import org.vertx.java.test.junit.old.VertxConfigurationJUnit4Runner;
 import org.vertx.java.test.utils.QueueReplyHandler;
 
 
@@ -34,7 +33,7 @@ import org.vertx.java.test.utils.QueueReplyHandler;
  * @author swilliams
  *
  */
-@RunWith(VertxConfigurationJUnit4Runner.class)
+@RunWith(VertxJUnit4ClassRunner.class)
 @TestVerticle(main="test_verticle0.js")
 public class VerticleRunWithTest extends VertxTestBase {
 

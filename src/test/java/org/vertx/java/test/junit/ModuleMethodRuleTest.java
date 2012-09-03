@@ -28,7 +28,6 @@ import org.vertx.java.core.impl.DefaultVertx;
 import org.vertx.java.deploy.impl.VerticleManager;
 import org.vertx.java.test.TestModule;
 import org.vertx.java.test.TestModules;
-import org.vertx.java.test.junit.old.VertxTestRule;
 import org.vertx.java.test.utils.QueueReplyHandler;
 
 
@@ -43,7 +42,7 @@ public class ModuleMethodRuleTest {
   private final VerticleManager manager = new VerticleManager(vertx);
 
   @Rule
-  public VertxTestRule rule = new VertxTestRule(manager);
+  public VertxExternalResource rule = new VertxExternalResource(manager);
 
   private long timeout = 10L;
 

@@ -25,8 +25,7 @@ import org.junit.runner.RunWith;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.test.junit.old.VertxConfigurationJUnit4Runner;
-import org.vertx.java.test.junit.old.VertxSupport;
+import org.vertx.java.test.VertxAware;
 import org.vertx.java.test.utils.QueueReplyHandler;
 
 
@@ -34,8 +33,8 @@ import org.vertx.java.test.utils.QueueReplyHandler;
  * @author swilliams
  *
  */
-@RunWith(VertxConfigurationJUnit4Runner.class)
-public class SimpleEchoTest implements VertxSupport {
+@RunWith(VertxJUnit4ClassRunner.class)
+public class SimpleEchoTest implements VertxAware {
 
   private static final String QUESTION = "Hello World";
 
