@@ -18,9 +18,11 @@ abstract class JUnit4ClassRunnerAdapter extends BlockJUnit4ClassRunner {
   }
 
   @Override
-  protected Statement methodInvoker(FrameworkMethod method, Object target) {
-    injectResources(method, target);
-    return super.methodInvoker(method, target);
+  protected Object createTest() throws Exception {
+    beforeCreateTest();
+    Object test = super.createTest();
+    afterCreateTest(test);
+    return test;
   }
 
   @Override
@@ -35,11 +37,18 @@ abstract class JUnit4ClassRunnerAdapter extends BlockJUnit4ClassRunner {
 
       @Override
       protected void after() {
-        afterClass();
+        beforeAfterClass();
         super.after();
+        afterClass();
       }
     });
     return rules;
+  }
+
+  @Override
+  protected Statement methodInvoker(FrameworkMethod method, Object target) {
+    injectMethodResources(method, target);
+    return super.methodInvoker(method, target);
   }
 
   @Override
@@ -80,15 +89,21 @@ abstract class JUnit4ClassRunnerAdapter extends BlockJUnit4ClassRunner {
 
   protected abstract void beforeAll();
 
+  protected abstract void beforeClass();
+
+  protected abstract void beforeCreateTest();
+
+  protected abstract void afterCreateTest(Object target);
+
   protected abstract void injectResources(Object target);
 
-  protected abstract void injectResources(FrameworkMethod method, Object target);
-
-  protected abstract void beforeClass();
+  protected abstract void injectMethodResources(FrameworkMethod method, Object target);
 
   protected abstract void beforeTest(Description description, Object target);
 
   protected abstract void afterTest(Description description, Object target);
+
+  protected abstract void beforeAfterClass();
 
   protected abstract void afterClass();
 

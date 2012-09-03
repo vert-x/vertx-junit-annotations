@@ -49,4 +49,12 @@ public class SimpleVerticleTest implements VerticleManagerAware {
     Assert.assertEquals(instances, 2);
   }
 
+  @Test
+  @TestVerticle(main="test_verticle5.js", instances=3)
+  public void test3() {
+    int instances = verticleManager.listInstances().size();
+    System.out.println("test.test3 " + instances);
+    Assert.assertEquals(instances, 2);
+  }
+
 }

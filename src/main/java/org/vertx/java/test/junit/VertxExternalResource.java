@@ -26,16 +26,13 @@ public class VertxExternalResource extends ExternalResource {
 
   @Override
   public Statement apply(Statement base, Description description) {
-
-    this.description = description;
+    this.description = description;  // TODO check this is entirely safe
 
     String vertxMods = System.getProperty("vertx.mods");
     this.modDir = new File(vertxMods);
     if (!modDir.exists()) {
       modDir.mkdirs();
     }
-
-    System.out.printf("VertxExternalResource.apply(%s,%s)%n", base, description);
     return super.apply(base, description);
   }
 
@@ -47,7 +44,6 @@ public class VertxExternalResource extends ExternalResource {
 
   @Override
   protected void after() {
-    System.out.printf("VertxExternalResource.after()%n");
     if (methodDeployments.size() > 0) {
       DeploymentUtils.undeploy(manager, methodDeployments);
     }

@@ -9,6 +9,8 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.impl.VertxInternal;
+import org.vertx.java.deploy.Container;
+import org.vertx.java.deploy.Verticle;
 import org.vertx.java.deploy.impl.VerticleManager;
 import org.vertx.java.test.VertxConfiguration;
 import org.vertx.java.test.utils.DeploymentUtils;
@@ -27,6 +29,8 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
   private Map<Annotation, String> classDeployments;
 
   private Map<Annotation, String> methodDeployments;
+
+  private Verticle verticle;
 
   public VertxJUnit4ClassRunner(Class<?> klass) throws InitializationError {
     super(klass);
@@ -59,6 +63,28 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
   }
 
   @Override
+  protected void beforeCreateTest() {
+    //
+  }
+
+  @Override
+  protected void afterCreateTest(Object target) {
+
+    if (target instanceof Verticle) {
+      this.verticle = (Verticle) target;
+      verticle.setVertx(vertx);
+      verticle.setContainer(new Container(manager));
+      try {
+        System.out.println("Starting test verticle!");
+        verticle.start();
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+  }
+
+  @Override
   protected void injectResources(Object target) {
     if ((configuration != null && configuration.injectResources()) || configuration == null) {
       InjectionUtils.inject(vertx, target);
@@ -67,8 +93,8 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
   }
 
   @Override
-  protected void injectResources(FrameworkMethod method, Object target) {
-    injectResources(target); // TODO probable double setting... test & remove
+  protected void injectMethodResources(FrameworkMethod method, Object target) {
+//    injectResources(target); // TODO probable double setting... test & remove
   }
 
   @Override
@@ -89,6 +115,20 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
   }
 
   @Override
+  protected void beforeAfterClass() {
+    System.out.println("beforeAfterClass");
+    if (this.verticle != null) {
+      try {
+        System.out.println("Stopping test verticle!");
+        verticle.stop();
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+  }
+
+  @Override
   protected void afterClass() {
     if (classDeployments.size() > 0) {
       DeploymentUtils.undeploy(manager, classDeployments);
@@ -97,6 +137,7 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
 
   @Override
   protected void afterAll() {
+
     manager.undeployAll(new Handler<Void>() {
       @Override
       public void handle(Void event) {

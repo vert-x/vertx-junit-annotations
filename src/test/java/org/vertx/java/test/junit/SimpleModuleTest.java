@@ -1,19 +1,20 @@
 package org.vertx.java.test.junit;
 
+import junit.framework.Assert;
+
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.vertx.java.deploy.impl.VerticleManager;
-import org.vertx.java.test.TestVerticle;
+import org.vertx.java.test.TestModule;
+import org.vertx.java.test.TestModules;
 import org.vertx.java.test.VerticleManagerAware;
 import org.vertx.java.test.VertxConfiguration;
 
 @RunWith(VertxJUnit4ClassRunner.class)
-@VertxConfiguration
-@TestVerticle(main="test_verticle0.js")
+@VertxConfiguration(modsDir="src/test/mods")
+@TestModule(name="test.echo0-v1.0")
 public class SimpleModuleTest implements VerticleManagerAware {
 
   private volatile VerticleManager verticleManager;
@@ -23,51 +24,50 @@ public class SimpleModuleTest implements VerticleManagerAware {
     this.verticleManager = verticleManager;
   }
 
-
-  @BeforeClass
-  @TestVerticle(main="test_verticle1.js")
-  public static void beforeClass() {
-    System.out.println("test.beforeClass");
-  }
-
   @Before
-  @TestVerticle(main="test_verticle2.js")
+  @TestModule(name="test.echo0-v1.0")
   public void before() {
-    System.out.println("test.before");
+    System.out.printf("test.before %s %n", verticleManager.listInstances());
   }
 
   @Test
-  @TestVerticle(main="test_verticle3.js")
+  @TestModules({
+    @TestModule(name="test.echo0-v1.0"),
+    @TestModule(name="test.echo1-v1.0"),
+    @TestModule(name="test.echo2-v1.0")
+  })
   public void test1() {
-    System.out.println("test.test1");
+    int instances = verticleManager.listInstances().size();
+    System.out.printf("test.test1 %s %n", verticleManager.listInstances());
+    Assert.assertEquals(instances, 4);
   }
 
   @Test
-  @TestVerticle(main="test_verticle4.js")
+  @TestModule(name="test.echo1-v1.0", instances=3)
   public void test2() {
-    System.out.println("test.test2");
+    int instances = verticleManager.listInstances().size();
+    System.out.printf("test.test2 %s %n", verticleManager.listInstances());
+    Assert.assertEquals(instances, 2);
   }
 
   @Test
-  @TestVerticle(main="test_verticle5.js")
+  @TestModule(name="test.echo2-v1.0", jsonConfig="{\"port\":8091}")
   public void test3() {
-    System.out.println("test.test3");
+    int instances = verticleManager.listInstances().size();
+    System.out.printf("test.test3 %s %n", verticleManager.listInstances());
+    Assert.assertEquals(instances, 2);
   }
 
   @Test
-  @TestVerticle(main="test_verticle6.js")
+  @TestModule(name="test.echo0-v1.0")
   public void test4() {
-    System.out.println("test.test4");
+    int instances = verticleManager.listInstances().size();
+    System.out.printf("test.test4 %s %n", verticleManager.listInstances());
+    Assert.assertEquals(instances, 2);
   }
 
   @After
   public void after() {
-    System.out.println("test.after");
+    System.out.printf("test.after %s %n", verticleManager.listInstances());
   }
-
-  @AfterClass
-  public static void afterClass() {
-    System.out.println("test.afterClass");
-  }
-
 }
