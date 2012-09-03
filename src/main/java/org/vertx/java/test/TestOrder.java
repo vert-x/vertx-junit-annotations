@@ -1,4 +1,4 @@
-package org.vertx.java.test.junit.annotations;
+package org.vertx.java.test;
 
 public @interface TestOrder {
 

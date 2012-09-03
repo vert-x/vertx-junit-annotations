@@ -25,8 +25,9 @@ import org.junit.runner.RunWith;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.test.junit.support.QueueReplyHandler;
-import org.vertx.java.test.junit.support.VertxSupport;
+import org.vertx.java.test.junit.old.VertxConfigurationJUnit4Runner;
+import org.vertx.java.test.junit.old.VertxSupport;
+import org.vertx.java.test.utils.QueueReplyHandler;
 
 
 /**

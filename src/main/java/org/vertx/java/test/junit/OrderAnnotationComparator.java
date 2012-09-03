@@ -3,7 +3,7 @@ package org.vertx.java.test.junit;
 import java.util.Comparator;
 
 import org.junit.runner.Description;
-import org.vertx.java.test.junit.annotations.TestOrder;
+import org.vertx.java.test.TestOrder;
 
 public class OrderAnnotationComparator implements Comparator<Description> {
 

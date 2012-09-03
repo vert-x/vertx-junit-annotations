@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.java.test.junit.annotations;
+package org.vertx.java.test;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -31,12 +31,8 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface TestModule {
+public @interface TestVerticles {
 
-  String name();
-
-  int instances() default 1;
-
-  String jsonConfig() default "{}";
+  TestVerticle[] value();
 
 }

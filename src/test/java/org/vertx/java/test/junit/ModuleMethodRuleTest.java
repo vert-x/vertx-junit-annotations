@@ -26,9 +26,10 @@ import org.junit.Test;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.impl.DefaultVertx;
 import org.vertx.java.deploy.impl.VerticleManager;
-import org.vertx.java.test.junit.annotations.TestModule;
-import org.vertx.java.test.junit.annotations.TestModules;
-import org.vertx.java.test.junit.support.QueueReplyHandler;
+import org.vertx.java.test.TestModule;
+import org.vertx.java.test.TestModules;
+import org.vertx.java.test.junit.old.VertxTestRule;
+import org.vertx.java.test.utils.QueueReplyHandler;
 
 
 /**

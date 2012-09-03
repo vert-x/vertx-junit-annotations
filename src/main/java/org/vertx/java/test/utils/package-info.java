@@ -13,32 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.java.test.junit.annotations;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-
 /**
  * @author swilliams
  *
  */
-@Documented
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface VertxConfiguration {
-
-  String hostname() default "localhost";
-
-  int port() default -1;
-
-  long shutdownTimeoutSeconds() default 30L;
-
-  String modsDir() default "build/tmp/test-mods";
-
-}
+package org.vertx.java.test.utils;

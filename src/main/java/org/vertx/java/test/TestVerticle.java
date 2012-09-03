@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.java.test.junit.annotations;
+package org.vertx.java.test;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
