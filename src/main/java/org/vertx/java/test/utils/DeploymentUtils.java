@@ -104,7 +104,6 @@ public class DeploymentUtils {
       catch (IllegalArgumentException e) {
         LOG.log(Level.WARNING, String.format("DeploymentUtils.undeployed(%s)%n", id), e);
       }
-
     }
   }
 
