@@ -8,6 +8,7 @@ import org.junit.rules.ExternalResource;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.vertx.java.deploy.impl.VerticleManager;
+import org.vertx.java.test.utils.DeploymentRegistry;
 import org.vertx.java.test.utils.DeploymentUtils;
 
 public class VertxExternalResource extends ExternalResource {
@@ -39,6 +40,7 @@ public class VertxExternalResource extends ExternalResource {
   @Override
   protected void before() throws Throwable {
     this.methodDeployments = JUnitDeploymentUtils.deploy(manager, modDir, description);
+    DeploymentRegistry.register(methodDeployments);
     super.before();
   }
 
@@ -48,6 +50,7 @@ public class VertxExternalResource extends ExternalResource {
       DeploymentUtils.undeploy(manager, methodDeployments);
     }
     super.after();
+    DeploymentRegistry.clear();
   }
 
 }

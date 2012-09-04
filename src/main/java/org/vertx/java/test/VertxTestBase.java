@@ -117,7 +117,6 @@ public abstract class VertxTestBase implements VertxAware, VerticleManagerAware 
 
   protected final void unregisterHandlers(Iterable<String> iterable) {
     for (String handler : iterable) {
-      System.out.printf("unregisterHandler: %s %n", handler);
       vertx.eventBus().unregisterHandler(handler);
     }
   }

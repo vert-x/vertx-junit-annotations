@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonObject;
@@ -23,6 +25,8 @@ import org.vertx.java.test.TestModule;
 import org.vertx.java.test.TestVerticle;
 
 public class DeploymentUtils {
+
+  private static final Logger LOG = Logger.getLogger(DeploymentUtils.class.getName());
 
   public static Map<Annotation, String> deployVerticles(VerticleManager manager, File modDir, Set<TestVerticle> verticles) {
     Map<Annotation, String> deployments = new HashMap<>();
@@ -38,7 +42,7 @@ public class DeploymentUtils {
         JsonObject config = getJsonConfig(v.jsonConfig());
         URL[] urls = findVerticleURLs(v);
 
-        System.out.printf("DeploymentUtils.deployVerticle(%s)%n", v);
+        LOG.log(Level.FINE, "DeploymentUtils.deployVerticle(%s)%n", v);
         manager.deployVerticle(v.worker(), v.main(), config, urls, v.instances(), modDir, handler);
       }
 
@@ -66,7 +70,7 @@ public class DeploymentUtils {
 
         JsonObject config = getJsonConfig(m.jsonConfig());
 
-        System.out.printf("DeploymentUtils.deployModule(%s)%n", m);
+        LOG.log(Level.FINE, "DeploymentUtils.deployModule(%s)%n", m);
         manager.deployMod(m.name(), config, m.instances(), modDir, handler);
       }
 
@@ -86,15 +90,21 @@ public class DeploymentUtils {
     final CountDownLatch latch = new CountDownLatch(deployments.size());
 
     for (final String id : deployments.values()) {
-      manager.undeploy(id, new Handler<Void>() {
-        @Override
-        public void handle(Void event) {
-          System.out.printf("DeploymentUtils.undeployed(%s)%n", id);
-          latch.countDown();
-        }
-      });
+      try {
+        manager.undeploy(id, new Handler<Void>() {
+          @Override
+          public void handle(Void event) {
+            System.out.printf("DeploymentUtils.undeployed(%s)%n", id);
+            latch.countDown();
+          }
+        });
 
-      await(latch, 2000L);  // FIXME this appears to hang
+        await(latch, 2000L);  // FIXME this appears to hang
+      }
+      catch (IllegalArgumentException e) {
+        LOG.log(Level.WARNING, String.format("DeploymentUtils.undeployed(%s)%n", id), e);
+      }
+
     }
   }
 

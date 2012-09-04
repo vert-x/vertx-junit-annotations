@@ -13,6 +13,7 @@ import org.vertx.java.deploy.Container;
 import org.vertx.java.deploy.Verticle;
 import org.vertx.java.deploy.impl.VerticleManager;
 import org.vertx.java.test.VertxConfiguration;
+import org.vertx.java.test.utils.DeploymentRegistry;
 import org.vertx.java.test.utils.DeploymentUtils;
 import org.vertx.java.test.utils.InjectionUtils;
 
@@ -105,6 +106,7 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
   @Override
   protected void beforeTest(Description description, Object target) {
     this.methodDeployments = JUnitDeploymentUtils.deploy(manager, modDir, description);
+    DeploymentRegistry.register(methodDeployments);
   }
 
   @Override
@@ -112,14 +114,16 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
     if (methodDeployments.size() > 0) {
       DeploymentUtils.undeploy(manager, methodDeployments);
     }
+
+    // avoid leaks
+    DeploymentRegistry.clear();
   }
 
   @Override
   protected void beforeAfterClass() {
-    System.out.println("beforeAfterClass");
+
     if (this.verticle != null) {
       try {
-        System.out.println("Stopping test verticle!");
         verticle.stop();
       } catch (Exception e) {
         // TODO Auto-generated catch block
@@ -141,7 +145,7 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
     manager.undeployAll(new Handler<Void>() {
       @Override
       public void handle(Void event) {
-        //
+        // TODO log this
       }});
   }
 
