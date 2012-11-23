@@ -16,6 +16,9 @@
 package org.vertx.java.test;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +42,9 @@ public abstract class VertxTestBase implements VertxAware, VerticleManagerAware 
   private Vertx vertx;
 
   private VerticleManager manager;
+
+  @SuppressWarnings("rawtypes")
+  private Map<String, VertxHandlerMapping> mappings = new HashMap<>();
 
   private static long AWAIT_TIMEOUT = 5000L;
 
@@ -99,25 +105,31 @@ public abstract class VertxTestBase implements VertxAware, VerticleManagerAware 
 
   protected final <T, M extends Message<T>> String registerHandler(String address, Handler<M> handler) {
     final CountDownLatch latch = new CountDownLatch(1);
-    String handlerId = vertx.eventBus().registerHandler(address, handler, new SimpleLatchAsyncResultHandler(latch));
+    vertx.eventBus().registerHandler(address, handler, new SimpleLatchAsyncResultHandler(latch));
     await(latch);
-    return handlerId;
+    String id = UUID.randomUUID().toString();
+    mappings.put(id, new VertxHandlerMapping<T,M>(address, handler));
+    return id;
   }
 
   protected final <T, M extends Message<T>> String registerLocalHandler(String address, Handler<M> handler) {
     final CountDownLatch latch = new CountDownLatch(1);
-    String handlerId = vertx.eventBus().registerLocalHandler(address, handler);
+    vertx.eventBus().registerLocalHandler(address, handler);
     await(latch);
-    return handlerId;
+    String id = UUID.randomUUID().toString();
+    mappings.put(id, new VertxHandlerMapping<T,M>(address, handler));
+    return id;
   }
 
   protected final void unregisterHandlers(String... handlers) {
     unregisterHandlers(Arrays.asList(handlers));
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   protected final void unregisterHandlers(Iterable<String> iterable) {
-    for (String handler : iterable) {
-      vertx.eventBus().unregisterHandler(handler);
+    for (String id : iterable) {
+      VertxHandlerMapping mapping = mappings.get(id);
+      vertx.eventBus().unregisterHandler(mapping.getAddress(), mapping.getHandler());
     }
   }
 

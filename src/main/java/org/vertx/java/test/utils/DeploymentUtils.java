@@ -43,7 +43,10 @@ public class DeploymentUtils {
         URL[] urls = findVerticleURLs(v);
 
         LOG.log(Level.FINE, "DeploymentUtils.deployVerticle(%s)%n", v);
-        manager.deployVerticle(v.worker(), v.main(), config, urls, v.instances(), modDir, handler);
+
+        // we are having to set null here which is not that clever
+        String includes = ("".equals(v.includes())) ? null : v.includes();
+        manager.deployVerticle(v.worker(), v.main(), config, urls, v.instances(), modDir, includes, handler);
       }
 
       await(latch);

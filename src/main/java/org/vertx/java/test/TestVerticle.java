@@ -41,6 +41,8 @@ public @interface TestVerticle {
 
   String jsonConfig() default "{}";
 
+  String includes() default "";
+
   String[] urls() default {};
 
 }
