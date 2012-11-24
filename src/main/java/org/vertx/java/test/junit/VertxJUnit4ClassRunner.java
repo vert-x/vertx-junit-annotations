@@ -100,12 +100,14 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
 
   @Override
   protected void beforeClass() {
-    this.classDeployments = JUnitDeploymentUtils.deploy(manager, modDir, getDescription());
+    long timeout = Long.getLong("vertx.test.timeout", 15000L);
+    this.classDeployments = JUnitDeploymentUtils.deploy(manager, modDir, getDescription(), timeout);
   }
 
   @Override
   protected void beforeTest(Description description, Object target) {
-    this.methodDeployments = JUnitDeploymentUtils.deploy(manager, modDir, description);
+    long timeout = Long.getLong("vertx.test.timeout", 15000L);
+    this.methodDeployments = JUnitDeploymentUtils.deploy(manager, modDir, description, timeout);
     DeploymentRegistry.register(methodDeployments);
   }
 

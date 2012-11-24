@@ -28,7 +28,7 @@ public class DeploymentUtils {
 
   private static final Logger LOG = Logger.getLogger(DeploymentUtils.class.getName());
 
-  public static Map<Annotation, String> deployVerticles(VerticleManager manager, File modDir, Set<TestVerticle> verticles) {
+  public static Map<Annotation, String> deployVerticles(VerticleManager manager, File modDir, Set<TestVerticle> verticles, long timeout) {
     Map<Annotation, String> deployments = new HashMap<>();
 
     if (verticles.size() > 0) {
@@ -49,7 +49,7 @@ public class DeploymentUtils {
         manager.deployVerticle(v.worker(), v.main(), config, urls, v.instances(), modDir, includes, handler);
       }
 
-      await(latch);
+      await(latch, timeout);
 
       Set<Entry<TestVerticle, DeploymentHandler>> entrySet = handlers.entrySet();
       for (Entry<TestVerticle, DeploymentHandler> e : entrySet) {
@@ -60,7 +60,7 @@ public class DeploymentUtils {
     return deployments;
   }
 
-  public static Map<Annotation, String> deployModules(VerticleManager manager, File modDir, Set<TestModule> modules) {
+  public static Map<Annotation, String> deployModules(VerticleManager manager, File modDir, Set<TestModule> modules, long timeout) {
     Map<Annotation, String> deployments = new HashMap<>();
 
     if (modules.size() > 0) {
@@ -77,7 +77,7 @@ public class DeploymentUtils {
         manager.deployMod(m.name(), config, m.instances(), modDir, handler);
       }
 
-      await(latch);
+      await(latch, timeout);
 
       Set<Entry<TestModule, DeploymentHandler>> entrySet = handlers.entrySet();
       for (Entry<TestModule, DeploymentHandler> e : entrySet) {
@@ -192,7 +192,7 @@ public class DeploymentUtils {
     return urlSet.toArray(urls);
   }
 
-  public static void await(final CountDownLatch latch) {
+  public static void await2(final CountDownLatch latch) {
     try {
       latch.await();
     } catch (InterruptedException e) {

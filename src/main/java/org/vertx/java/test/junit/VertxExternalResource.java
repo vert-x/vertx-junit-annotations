@@ -39,7 +39,8 @@ public class VertxExternalResource extends ExternalResource {
 
   @Override
   protected void before() throws Throwable {
-    this.methodDeployments = JUnitDeploymentUtils.deploy(manager, modDir, description);
+    long timeout = Long.getLong("vertx.test.timeout", 15000L);
+    this.methodDeployments = JUnitDeploymentUtils.deploy(manager, modDir, description, timeout);
     DeploymentRegistry.register(methodDeployments);
     super.before();
   }

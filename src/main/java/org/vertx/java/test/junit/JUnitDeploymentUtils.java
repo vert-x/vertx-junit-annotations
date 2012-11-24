@@ -22,7 +22,7 @@ public class JUnitDeploymentUtils {
    * @param description
    * @return map
    */
-  public static Map<Annotation, String> deploy(VerticleManager manager, File modDir, Description description) {
+  public static Map<Annotation, String> deploy(VerticleManager manager, File modDir, Description description, long timeout) {
 
     Map<Annotation, String> deployments = new HashMap<>();
 
@@ -41,7 +41,7 @@ public class JUnitDeploymentUtils {
       }
     }
 
-    Map<Annotation, String> verticleDeployments = DeploymentUtils.deployVerticles(manager, modDir, verticles);
+    Map<Annotation, String> verticleDeployments = DeploymentUtils.deployVerticles(manager, modDir, verticles, timeout);
     deployments.putAll(verticleDeployments);
 
     // ------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ public class JUnitDeploymentUtils {
       }
     }
 
-    Map<Annotation, String> modulesDeployments = DeploymentUtils.deployModules(manager, modDir, modules);
+    Map<Annotation, String> modulesDeployments = DeploymentUtils.deployModules(manager, modDir, modules, timeout);
     deployments.putAll(modulesDeployments);
 
     // ------------------------------------------------------------------------------
