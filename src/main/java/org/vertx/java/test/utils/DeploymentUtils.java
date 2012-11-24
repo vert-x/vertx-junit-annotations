@@ -46,10 +46,16 @@ public class DeploymentUtils {
 
         // we are having to set null here which is not that clever
         String includes = ("".equals(v.includes())) ? null : v.includes();
-        manager.deployVerticle(v.worker(), v.main(), config, urls, v.instances(), modDir, includes, handler);
+        try {
+          manager.deployVerticle(v.worker(), v.main(), config, urls, v.instances(), modDir, includes, handler);
+        } catch (Exception e) {
+          e.printStackTrace();
+          latch.countDown();
+        }
       }
 
-      await(latch, timeout);
+      await(latch);
+      // await(latch, timeout); // Eh?
 
       Set<Entry<TestVerticle, DeploymentHandler>> entrySet = handlers.entrySet();
       for (Entry<TestVerticle, DeploymentHandler> e : entrySet) {
@@ -74,10 +80,16 @@ public class DeploymentUtils {
         JsonObject config = getJsonConfig(m.jsonConfig());
 
         LOG.log(Level.FINE, "DeploymentUtils.deployModule(%s)%n", m);
-        manager.deployMod(m.name(), config, m.instances(), modDir, handler);
+        try {
+          manager.deployMod(m.name(), config, m.instances(), modDir, handler);
+        } catch (Exception e) {
+          e.printStackTrace();
+          latch.countDown();
+        }
       }
 
-      await(latch, timeout);
+      await(latch);
+      // await(latch, timeout); // Eh?
 
       Set<Entry<TestModule, DeploymentHandler>> entrySet = handlers.entrySet();
       for (Entry<TestModule, DeploymentHandler> e : entrySet) {
@@ -192,7 +204,7 @@ public class DeploymentUtils {
     return urlSet.toArray(urls);
   }
 
-  public static void await2(final CountDownLatch latch) {
+  public static void await(final CountDownLatch latch) {
     try {
       latch.await();
     } catch (InterruptedException e) {
