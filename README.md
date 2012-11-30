@@ -13,7 +13,17 @@ IMPORTANT: The embedded vert.x instance will throw an exception if any of the ve
 The vertx-junit-annotations JAR is in Maven Central at the following coordinates (in Gradle form).
 
     org.vert-x:vertx-junit-annotations:1.3.0.final
-    
+
+and in Maven form:
+
+    <dependency>
+       <groupId>org.vert-x</groupId>
+       <artifactId>vertx-junit-annotations</artifactId>
+       <version>1.3.0.final</version>
+       <scope>test</scope>
+    </dependency>
+
+
 ### Source Code Layout
 
 This utility is aimed at integration testing, rather than unit testing.  For this reason and because of the classpath requirements described above, it is recommended that the source for your integration tests should be in a separate source path than the main and test code.
@@ -93,7 +103,7 @@ Finally, extend VertxTestBase which implements both interfaces described above a
 
 ## Launching
 
-### Testing a verticles
+### Testing a Verticle
 
 You can annotate a class:
 
