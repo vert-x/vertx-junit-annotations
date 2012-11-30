@@ -23,7 +23,6 @@ and in Maven form:
        <scope>test</scope>
     </dependency>
 
-
 ### Source Code Layout
 
 This utility is aimed at integration testing, rather than unit testing.  For this reason and because of the classpath requirements described above, it is recommended that the source for your integration tests should be in a separate source path than the main and test code.
