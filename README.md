@@ -1,16 +1,35 @@
-# vert.x JUnit Annotations
+# JUnit Annotations for vert.x
 
 A JUnit Test Runner for vert.x and some utility annotations for launching integration tests.
 
-## Setup
+## Classpath Setup
+
+IMPORTANT: The embedded vert.x instance will throw an exception if any of the verticles or modules you're testing are on the same classpath.  This means that you must take care to ensure that the compile classpath for your application (if one exists) is not present in the integration test classpath.
 
 ### Maven coordinates
 
 The vertx-junit-annotations JAR is in Maven Central at the following coordinates (in Gradle form).
 
     org.vert-x:vertx-junit-annotations:1.3.0.final
+    
+### Source Code Layout
 
-## Configuration
+This utility is aimed at integration testing, rather than unit testing.  For this reason and because of the classpath requirements described above, it is recommended that the source for your integration tests should be in a separate source path than the main and test code.
+
+The following convention is recommended:
+
+    src/main/java
+    src/main/resources
+
+    src/test/java
+    src/test/resources
+
+    src/vertxInteg/java
+    src/vertxInteg/resources
+
+This means that you can apply fine-grained control to the classpath and still perform unit tests on your code.
+
+## Test Configuration
 
 ### Starting the vert.x node
 
@@ -43,7 +62,8 @@ Implement VertxAware in your test class and VertxJUnit4ClassRunner will provide 
       @Override
       public void setVertx(Vertx vertx) {
         this.vertx = vertx;
-      }          
+      }
+      ...
     }
 
 Implement VertxManagerAware to get the current VerticleManager:
@@ -58,6 +78,7 @@ Implement VertxManagerAware to get the current VerticleManager:
       public void setVerticleManager(VerticleManager manager) {
         this.manager = manager;
       }
+      ...
     }
 
 Finally, extend VertxTestBase which implements both interfaces described above and some other utility methods:
@@ -90,6 +111,7 @@ or you can annotate a method:
       @Test
       @TestVerticle(main="test-verticle.js")
       public void doSomeTests() {}
+      ...
     }
 
 If you annotate a class, the verticle starts before any other method is executed and is automatically stopped when the all of the tests in the class have finished.
@@ -116,6 +138,7 @@ and it can also annotate a method:
       @Test
       @TestModule(name="vertx.example-v1.0")
       public void doSomeTests() {}
+      ...
     }
 
 ## Usage
