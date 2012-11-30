@@ -2,6 +2,8 @@
 
 A JUnit Test Runner for vert.x and some utility annotations for launching integration tests.
 
+[![Build Status](https://travis-ci.org/vert-x/vertx-junit-annotations.png)](https://travis-ci.org/vert-x/vertx-junit-annotations)
+
 ## Classpath Setup
 
 IMPORTANT: The embedded vert.x instance will throw an exception if any of the verticles or modules you're testing are on the same classpath.  This means that you must take care to ensure that the compile classpath for your application (if one exists) is not present in the integration test classpath.
