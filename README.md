@@ -2,7 +2,7 @@
 
 A JUnit Test Runner for vert.x and some utility annotations for launching integration tests.
 
-[![Build Status](https://travis-ci.org/vert-x/vertx-junit-annotations.png)](https://travis-ci.org/vert-x/vertx-junit-annotations)
+[![Build Status](https://travis-ci.org/vert-x/vertx-junit-annotations.png?branch=master)](https://travis-ci.org/vert-x/vertx-junit-annotations)
 
 ## Classpath Setup
 
