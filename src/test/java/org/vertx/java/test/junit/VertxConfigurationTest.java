@@ -24,7 +24,7 @@ import org.vertx.java.test.VertxTestBase;
 
 
 @RunWith(VertxJUnit4ClassRunner.class)
-@VertxConfiguration(port=50001, hostname="localhost", modsDir="src/test/mods-foo")
+@VertxConfiguration(modsDir="src/test/mods-foo")
 public class VertxConfigurationTest extends VertxTestBase {
 
   @Test
