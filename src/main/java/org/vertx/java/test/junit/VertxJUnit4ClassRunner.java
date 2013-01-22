@@ -70,7 +70,10 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
       if (configuration.port() > 0) {
         builder.setPort(configuration.port());
       }
-      vertxMods = System.getProperty("vertx.mods", configuration.modsDir());
+      if (!"".equalsIgnoreCase(configuration.modsDir())) {
+        vertxMods = configuration.modsDir();
+        System.setProperty("vertx.mods", vertxMods);
+      }
     }
 
     this.modDir = new File(vertxMods);

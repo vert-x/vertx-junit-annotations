@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.deploy.Container;
 import org.vertx.java.deploy.impl.VerticleManager;
 import org.vertx.java.test.TestModule;
 import org.vertx.java.test.TestVerticle;
@@ -101,6 +102,8 @@ public class DeploymentUtils {
         LOG.log(Level.FINE, "DeploymentUtils.deployModule(%s)%n", m);
         try {
           manager.deployMod(m.name(), config, m.instances(), modDir, handler);
+//           Container container = new Container(manager);
+           // container.deployModule(moduleName, config, instances)
         } catch (Exception e) {
           e.printStackTrace();
           latch.countDown();

@@ -13,34 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.java.test;
+package org.vertx.java.test.junit;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import junit.framework.Assert;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.vertx.java.test.VertxConfiguration;
+import org.vertx.java.test.VertxTestBase;
 
 
-/**
- * @author swilliams
- *
- */
-@Documented
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface VertxConfiguration {
+@RunWith(VertxJUnit4ClassRunner.class)
+@VertxConfiguration(port=50001, hostname="localhost", modsDir="src/test/mods-foo")
+public class VertxConfigurationTest extends VertxTestBase {
 
-  String hostname() default "";
-
-  int port() default -1;
-
-  long shutdownTimeoutSeconds() default 30L;
-
-  String modsDir() default "";
-
-  boolean injectResources() default true;
+  @Test
+  public void testModsDirIsSet() {
+    Assert.assertEquals("src/test/mods-foo", System.getProperty("vertx.mods"));
+  }
 
 }
