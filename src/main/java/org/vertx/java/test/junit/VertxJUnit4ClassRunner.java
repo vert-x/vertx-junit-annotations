@@ -18,16 +18,18 @@ package org.vertx.java.test.junit;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.runner.Description;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
-import org.vertx.java.core.Handler;
 import org.vertx.java.core.impl.VertxInternal;
 import org.vertx.java.deploy.Container;
 import org.vertx.java.deploy.Verticle;
 import org.vertx.java.deploy.impl.VerticleManager;
 import org.vertx.java.test.VertxConfiguration;
+import org.vertx.java.test.utils.CountDownLatchDoneHandler;
 import org.vertx.java.test.utils.DeploymentRegistry;
 import org.vertx.java.test.utils.DeploymentUtils;
 import org.vertx.java.test.utils.InjectionUtils;
@@ -61,7 +63,7 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
 
     VertxBuilder builder = new VertxBuilder();
 
-    String vertxMods = System.getProperty("vertx.mods");
+    String vertxMods = System.getProperty("vertx.mods", "build/tmp/mods-test");
     this.configuration = getDescription().getAnnotation(VertxConfiguration.class);
     if (configuration != null) {
       if (!"".equalsIgnoreCase(configuration.hostname())) {
@@ -101,8 +103,7 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
         System.out.println("Starting test verticle!");
         verticle.start();
       } catch (Exception e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        throw new RuntimeException(e);
       }
     }
   }
@@ -165,12 +166,22 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
 
   @Override
   protected void afterAll() {
-
-    manager.undeployAll(new Handler<Void>() {
-      @Override
-      public void handle(Void event) {
-        // TODO log this
-      }});
+    CountDownLatch latch = new CountDownLatch(1);
+    CountDownLatchDoneHandler<Void> h = new CountDownLatchDoneHandler<>(latch);
+    manager.undeployAll(h);
+    long timeout = 5L;
+    if (configuration != null) {
+      timeout = configuration.shutdownTimeoutSeconds();
+    }
+    try {
+      boolean awaited = latch.await(timeout, TimeUnit.SECONDS);
+      if (!awaited) {
+        System.out.println("Waited for " + timeout + " but not all undeployments may have completed");
+      }
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
 }
