@@ -18,6 +18,7 @@ package org.vertx.java.test.utils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -35,7 +36,6 @@ import java.util.logging.Logger;
 
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.deploy.Container;
 import org.vertx.java.deploy.impl.VerticleManager;
 import org.vertx.java.test.TestModule;
 import org.vertx.java.test.TestVerticle;
@@ -62,7 +62,7 @@ public class DeploymentUtils {
         JsonObject config = getJsonConfig(v.jsonConfig());
         URL[] urls = findVerticleURLs(v);
 
-        LOG.log(Level.FINE, "DeploymentUtils.deployVerticle(%s)%n", v);
+        LOG.log(Level.FINE, "deployVerticle(%s)%n", v);
 
         // we are having to set null here which is not that clever
         String includes = ("".equals(v.includes())) ? null : v.includes();
@@ -99,11 +99,9 @@ public class DeploymentUtils {
 
         JsonObject config = getJsonConfig(m.jsonConfig());
 
-        LOG.log(Level.FINE, "DeploymentUtils.deployModule(%s)%n", m);
+        LOG.log(Level.FINE, "deployModule(%s)%n", m);
         try {
           manager.deployMod(m.name(), config, m.instances(), modDir, handler);
-//           Container container = new Container(manager);
-           // container.deployModule(moduleName, config, instances)
         } catch (Exception e) {
           e.printStackTrace();
           latch.countDown();
@@ -131,7 +129,7 @@ public class DeploymentUtils {
         manager.undeploy(id, new Handler<Void>() {
           @Override
           public void handle(Void event) {
-            System.out.printf("DeploymentUtils.undeployed(%s)%n", id);
+            LOG.log(Level.FINE, String.format("DeploymentUtils undeployed (%s) %n", id));
             latch.countDown();
           }
         });
@@ -139,7 +137,7 @@ public class DeploymentUtils {
         await(latch, 2000L);  // FIXME this appears to hang
       }
       catch (IllegalArgumentException e) {
-        LOG.log(Level.WARNING, String.format("DeploymentUtils.undeployed(%s)%n", id), e);
+        LOG.log(Level.WARNING, String.format("Problem undeploying (%s) %n", id), e);
       }
     }
   }
@@ -150,14 +148,17 @@ public class DeploymentUtils {
 
     if (jsonConfig.startsWith("file:")) {
       String filename = jsonConfig.replaceFirst("file:", "");
-      Path json = new File(filename).toPath();
 
       try {
+        URL url = Thread.currentThread().getContextClassLoader().getResource(filename);
+        Path json = Paths.get(url.toURI());
         Charset utf8 = Charset.forName("UTF-8");
         byte[] bytes = Files.readAllBytes(json);
         config = new JsonObject(new String(bytes, utf8));
 
       } catch (IOException e) {
+        throw new RuntimeException(e);
+      } catch (URISyntaxException e) {
         throw new RuntimeException(e);
       }
     }
