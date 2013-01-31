@@ -154,4 +154,6 @@ and it can also annotate a method:
 
 ## Usage
 
+See the [Wiki](https://github.com/vert-x/vertx-junit-annotations/wiki) for sample project builds.
+
 See the projects own unit tests for many more examples!
