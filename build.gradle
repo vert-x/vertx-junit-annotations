@@ -28,7 +28,7 @@ repositories {
 }
 
 dependencies {
-  compile "junit:junit:$junitVersion"
+  compile "junit:junit-dep:$junitVersion"
   compile "org.vert-x:vertx-core:$vertxVersion"
   compile "org.vert-x:vertx-platform:$vertxVersion"
 

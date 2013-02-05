@@ -20,7 +20,6 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.test.TestVerticle;
 import org.vertx.java.test.VertxAware;
 import org.vertx.java.test.VertxConfiguration;
