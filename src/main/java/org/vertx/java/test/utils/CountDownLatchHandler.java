@@ -20,8 +20,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.Message;
 
-public class CountDownLatchHandler<T> implements Handler<T> {
+public class CountDownLatchHandler<T> implements Handler<Message<T>> {
 
   private CountDownLatch latch;
 
@@ -47,9 +48,9 @@ public class CountDownLatchHandler<T> implements Handler<T> {
   }
 
   @Override
-  public void handle(T event) {
+  public void handle(Message<T> event) {
     try {
-      queue.offer(event, timeout, timeUnit);
+      queue.offer(event.body, timeout, timeUnit);
       latch.countDown();
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block

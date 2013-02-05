@@ -40,21 +40,21 @@ public class JsonConfigVerticleTest implements VertxAware {
   @Test
   @TestVerticle(main="test_json0.js", jsonConfig="{ \"foo\": \"bar0\"}")
   public void testAnnotationJsonConfigInline() {
-    CountDownLatchHandler<Message<String>> handler = new CountDownLatchHandler<>(1);
+    CountDownLatchHandler<String> handler = new CountDownLatchHandler<>(1);
     vertx.eventBus().send("vertx.test.echo0", "getFoo", handler);
     boolean found = handler.waitFor();
     Assert.assertTrue(found);
-    Assert.assertEquals("bar0", handler.poll().body);
+    Assert.assertEquals("bar0", handler.poll());
   }
 
   @Test
   @TestVerticle(main="test_json0.js", jsonConfig="file:test1.json")
   public void testAnnotationJsonConfigWithFile() {
-    CountDownLatchHandler<Message<String>> handler = new CountDownLatchHandler<>(1);
+    CountDownLatchHandler<String> handler = new CountDownLatchHandler<>(1);
     vertx.eventBus().send("vertx.test.echo0", "getFoo", handler);
     boolean found = handler.waitFor();
     Assert.assertTrue(found);
-    Assert.assertEquals("bar1", handler.poll().body);
+    Assert.assertEquals("bar1", handler.poll());
   }
 
 }
