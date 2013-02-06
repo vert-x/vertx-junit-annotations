@@ -49,12 +49,9 @@ public class CountDownLatchHandler<T> implements Handler<Message<T>> {
 
   @Override
   public void handle(Message<T> event) {
-    try {
-      queue.offer(event.body, timeout, timeUnit);
+    boolean added = queue.offer(event.body);
+    if (added) {
       latch.countDown();
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
     }
   }
 

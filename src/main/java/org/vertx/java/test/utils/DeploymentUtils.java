@@ -68,8 +68,10 @@ public class DeploymentUtils {
         String includes = ("".equals(v.includes())) ? null : v.includes();
         try {
           manager.deployVerticle(v.worker(), v.main(), config, urls, v.instances(), modDir, includes, handler);
-        } catch (Exception e) {
+//          deployments.put(v, handler.getDeploymentID());
+        } catch (Throwable e) {
           e.printStackTrace();
+          LOG.log(Level.WARNING, String.format("Problem deploying (%s) %n", v), e);
           latch.countDown();
         }
       }
@@ -79,7 +81,8 @@ public class DeploymentUtils {
 
       Set<Entry<TestVerticle, DeploymentHandler>> entrySet = handlers.entrySet();
       for (Entry<TestVerticle, DeploymentHandler> e : entrySet) {
-        deployments.put(e.getKey(), e.getValue().getDeploymentID());
+        String id = e.getValue().getDeploymentID();
+        if (id != null) deployments.put(e.getKey(), id);
       }
     }
 
@@ -102,18 +105,21 @@ public class DeploymentUtils {
         LOG.log(Level.FINE, "deployModule(%s)%n", m);
         try {
           manager.deployMod(m.name(), config, m.instances(), modDir, handler);
-        } catch (Exception e) {
+        } catch (Throwable e) {
           e.printStackTrace();
+          LOG.log(Level.WARNING, String.format("Problem deploying (%s) %n", m), e);
           latch.countDown();
         }
       }
 
       await(latch);
-      // await(latch, timeout); // Eh?
+      // FIXME - why does this cause NPE's?
+      // latch.await(timeout, TimeUnit.MILLISECONDS);
 
       Set<Entry<TestModule, DeploymentHandler>> entrySet = handlers.entrySet();
       for (Entry<TestModule, DeploymentHandler> e : entrySet) {
-        deployments.put(e.getKey(), e.getValue().getDeploymentID());
+        String id = e.getValue().getDeploymentID();
+        if (id != null) deployments.put(e.getKey(), id);
       }
     }
 
@@ -123,25 +129,28 @@ public class DeploymentUtils {
   public static void undeploy(VerticleManager manager, Map<Annotation, String> deployments) {
 
     final CountDownLatch latch = new CountDownLatch(deployments.size());
+    Map<String, Integer> instances = manager.listInstances();
 
-    for (final String id : deployments.values()) {
-      try {
-        manager.undeploy(id, new Handler<Void>() {
-          @Override
-          public void handle(Void event) {
-            LOG.log(Level.FINE, String.format("DeploymentUtils undeployed (%s) %n", id));
-            latch.countDown();
-          }
-        });
+    for (Annotation a : deployments.keySet()) {
+      final String id = deployments.get(a);
 
-        await(latch, 2000L);  // FIXME this appears to hang
-      }
-      catch (IllegalArgumentException e) {
-        LOG.log(Level.WARNING, String.format("Problem undeploying (%s) %n", id), e);
+      if (id != null && instances.containsKey(id)) {
+        try {
+          manager.undeploy(id, new Handler<Void>() {
+            @Override
+            public void handle(Void event) {
+              LOG.log(Level.FINE, String.format("DeploymentUtils undeployed (%s) %n", id));
+              latch.countDown();
+            }
+          });
+        } catch (Exception e) {
+          LOG.log(Level.WARNING, String.format("Problem undeploying (%s) %n", id), e);
+        }
       }
     }
-  }
 
+    await(latch, 2000L);  // FIXME this appears to hang
+  }
 
   public static JsonObject getJsonConfig(String jsonConfig) {
     JsonObject config;
@@ -181,8 +190,7 @@ public class DeploymentUtils {
           urlSet.add(url);
 
         } catch (Exception e) {
-          // TODO log something here
-          e.printStackTrace();
+          LOG.log(Level.SEVERE, e.getMessage(), e);
         }
       }
     }
@@ -230,7 +238,7 @@ public class DeploymentUtils {
   public static void await(final CountDownLatch latch) {
     try {
       latch.await();
-    } catch (InterruptedException e) {
+    } catch (Throwable e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
@@ -239,7 +247,7 @@ public class DeploymentUtils {
   public static void await(final CountDownLatch latch, final long timeout) {
     try {
       latch.await(timeout, TimeUnit.MILLISECONDS);
-    } catch (InterruptedException e) {
+    } catch (Throwable e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
