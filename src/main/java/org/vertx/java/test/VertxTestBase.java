@@ -28,7 +28,7 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.deploy.impl.VerticleManager;
+import org.vertx.java.platform.Container;
 import org.vertx.java.test.utils.QueueReplyHandler;
 import org.vertx.java.test.utils.SimpleLatchAsyncResultHandler;
 
@@ -37,11 +37,11 @@ import org.vertx.java.test.utils.SimpleLatchAsyncResultHandler;
  * @author swilliams
  *
  */
-public abstract class VertxTestBase implements VertxAware, VerticleManagerAware {
+public abstract class VertxTestBase implements VertxAware, ContainerAware {
 
   private Vertx vertx;
 
-  private VerticleManager manager;
+  private Container container;
 
   @SuppressWarnings("rawtypes")
   private Map<String, VertxHandlerMapping> mappings = new HashMap<>();
@@ -58,8 +58,8 @@ public abstract class VertxTestBase implements VertxAware, VerticleManagerAware 
   }
 
   @Override
-  public void setVerticleManager(VerticleManager manager) {
-    this.manager = manager;
+  public void setContainer(Container container) {
+    this.container = container;
   }
 
   protected Vertx getVertx() {
@@ -70,8 +70,8 @@ public abstract class VertxTestBase implements VertxAware, VerticleManagerAware 
     return vertx.eventBus();
   }
 
-  protected VerticleManager getManager() {
-    return manager;
+  protected Container getContainer() {
+    return container;
   }
 
   protected static final void setAwaitTimeout(long awaitTimeout) {

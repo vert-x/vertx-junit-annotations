@@ -15,9 +15,9 @@
  */
 package org.vertx.java.test.utils;
 
-import org.vertx.java.core.impl.VertxInternal;
-import org.vertx.java.deploy.impl.VerticleManager;
-import org.vertx.java.test.VerticleManagerAware;
+import org.vertx.java.core.Vertx;
+import org.vertx.java.platform.PlatformManager;
+import org.vertx.java.test.PlatformManagerAware;
 import org.vertx.java.test.VertxAware;
 
 /**
@@ -26,17 +26,17 @@ import org.vertx.java.test.VertxAware;
  */
 public class InjectionUtils {
 
-  public static void inject(VertxInternal vertx, Object target) {
+  public static void inject(Vertx vertx, Object target) {
     if (target instanceof VertxAware) {
       VertxAware aware = (VertxAware) target;
       aware.setVertx(vertx);
     }
   }
 
-  public static void inject(VerticleManager verticleManager, Object target) {
-    if (target instanceof VerticleManagerAware) {
-      VerticleManagerAware aware = (VerticleManagerAware) target;
-      aware.setVerticleManager(verticleManager);
+  public static void inject(PlatformManager platformManager, Object target) {
+    if (target instanceof PlatformManagerAware) {
+      PlatformManagerAware aware = (PlatformManagerAware) target;
+      aware.setPlatformManager(platformManager);
     }
   }
 

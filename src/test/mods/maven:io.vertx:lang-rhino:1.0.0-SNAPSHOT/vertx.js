@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2011-2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.java.test;
 
-import org.vertx.java.deploy.impl.VerticleManager;
-
-/**
- * @author swilliams
- *
- */
-public interface VerticleManagerAware {
-
-  void setVerticleManager(VerticleManager verticleManager);
-
-}
+(function(){
+    load('core/buffer.js');
+    load('core/event_bus.js');
+    load('core/net.js');
+    load('core/http.js');
+    load('core/streams.js');
+    load('core/timers.js');
+    load('core/utils.js');
+    load('core/sockjs.js');
+    load('core/parse_tools.js');
+    load('core/shared_data.js');
+    load('core/filesystem.js');
+    load('core/deploy.js');
+    load('core/logger.js');
+    load('core/env.js');
+    (this.module && module.exports) ? module.exports = vertx : this.vertx = vertx;
+})();

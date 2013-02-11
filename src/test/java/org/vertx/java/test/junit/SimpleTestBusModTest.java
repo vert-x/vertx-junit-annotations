@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.vertx.java.deploy.Verticle;
+import org.vertx.java.platform.Verticle;
 import org.vertx.java.test.VertxConfiguration;
 
 @RunWith(VertxJUnit4ClassRunner.class)

@@ -24,10 +24,13 @@ import java.util.concurrent.TimeUnit;
 import org.junit.runner.Description;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
-import org.vertx.java.core.impl.VertxInternal;
-import org.vertx.java.deploy.Container;
-import org.vertx.java.deploy.Verticle;
-import org.vertx.java.deploy.impl.VerticleManager;
+import org.vertx.java.platform.Container;
+import org.vertx.java.platform.PlatformManagerFactory;
+import org.vertx.java.platform.Verticle;
+import org.vertx.java.platform.PlatformManager;
+import org.vertx.java.platform.impl.DefaultPlatformManagerFactory;
+import org.vertx.java.platform.impl.PlatformManagerInternal;
+
 import org.vertx.java.test.VertxConfiguration;
 import org.vertx.java.test.utils.CountDownLatchDoneHandler;
 import org.vertx.java.test.utils.DeploymentRegistry;
@@ -40,9 +43,9 @@ import org.vertx.java.test.utils.InjectionUtils;
  */
 public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
 
-  private VertxInternal vertx;
-
-  private VerticleManager manager;
+//  private VertxInternal vertx;
+//
+  private PlatformManager platformManager;
 
   private VertxConfiguration configuration;
 
@@ -61,30 +64,32 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
   @Override
   protected void beforeAll() {
 
-    VertxBuilder builder = new VertxBuilder();
-
     String vertxMods = System.getProperty("vertx.mods", "build/tmp/mods-test");
     this.configuration = getDescription().getAnnotation(VertxConfiguration.class);
-    if (configuration != null) {
-      if (!"".equalsIgnoreCase(configuration.hostname())) {
-        builder.setAddress(configuration.hostname());
-      }
-      if (configuration.port() > 0) {
-        builder.setPort(configuration.port());
-      }
-      if (!"".equalsIgnoreCase(configuration.modsDir())) {
-        vertxMods = configuration.modsDir();
-        System.setProperty("vertx.mods", vertxMods);
-      }
+    if (configuration != null && !"".equalsIgnoreCase(configuration.modsDir())) {
+      vertxMods = configuration.modsDir();
+      System.setProperty("vertx.mods", vertxMods);
     }
+
+    // sysprops must be set before this is called
+    PlatformManagerFactory factory = new DefaultPlatformManagerFactory();
+
+    if (configuration != null && configuration.port() > 0) {
+      int clusterPort = configuration.port();
+      String clusterHost = configuration.hostname();
+      this.platformManager = factory.createPlatformManager(clusterPort, clusterHost);
+    }
+    else {
+      this.platformManager = factory.createPlatformManager();
+    }
+
 
     this.modDir = new File(vertxMods);
     if (!modDir.exists()) {
       modDir.mkdirs();
     }
 
-    this.vertx = builder.build();
-    this.manager = new VerticleManager(vertx);
+    this.platformManager = factory.createPlatformManager();
   }
 
   @Override
@@ -97,8 +102,8 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
 
     if (target instanceof Verticle) {
       this.verticle = (Verticle) target;
-      verticle.setVertx(vertx);
-      verticle.setContainer(new Container(manager));
+      verticle.setVertx(platformManager.getVertx());
+      verticle.setContainer(new Container((PlatformManagerInternal) platformManager));
       try {
         System.out.println("Starting test verticle!");
         verticle.start();
@@ -111,8 +116,8 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
   @Override
   protected void injectResources(Object target) {
     if ((configuration != null && configuration.injectResources()) || configuration == null) {
-      InjectionUtils.inject(vertx, target);
-      InjectionUtils.inject(manager, target);
+      InjectionUtils.inject(platformManager.getVertx(), target);
+      InjectionUtils.inject(platformManager, target);
     }
   }
 
@@ -124,20 +129,20 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
   @Override
   protected void beforeClass() {
     long timeout = Long.getLong("vertx.test.timeout", 15000L);
-    this.classDeployments = JUnitDeploymentUtils.deploy(manager, modDir, getDescription(), timeout);
+    this.classDeployments = JUnitDeploymentUtils.deploy(platformManager, modDir, getDescription(), timeout);
   }
 
   @Override
   protected void beforeTest(Description description, Object target) {
     long timeout = Long.getLong("vertx.test.timeout", 15000L);
-    this.methodDeployments = JUnitDeploymentUtils.deploy(manager, modDir, description, timeout);
+    this.methodDeployments = JUnitDeploymentUtils.deploy(platformManager, modDir, description, timeout);
     DeploymentRegistry.register(methodDeployments);
   }
 
   @Override
   protected void afterTest(Description description, Object target) {
     if (methodDeployments.size() > 0) {
-      DeploymentUtils.undeploy(manager, methodDeployments);
+      DeploymentUtils.undeploy(platformManager, methodDeployments);
     }
 
     // avoid leaks
@@ -160,7 +165,7 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
   @Override
   protected void afterClass() {
     if (classDeployments.size() > 0) {
-      DeploymentUtils.undeploy(manager, classDeployments);
+      DeploymentUtils.undeploy(platformManager, classDeployments);
     }
   }
 
@@ -168,7 +173,7 @@ public class VertxJUnit4ClassRunner extends JUnit4ClassRunnerAdapter {
   protected void afterAll() {
     CountDownLatch latch = new CountDownLatch(1);
     CountDownLatchDoneHandler<Void> h = new CountDownLatchDoneHandler<>(latch);
-    manager.undeployAll(h);
+    platformManager.undeployAll(h);
     long timeout = 5L;
     if (configuration != null) {
       timeout = configuration.shutdownTimeoutSeconds();

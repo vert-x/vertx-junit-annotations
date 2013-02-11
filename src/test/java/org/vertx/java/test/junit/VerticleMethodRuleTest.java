@@ -24,8 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.vertx.java.core.Vertx;
-import org.vertx.java.core.impl.DefaultVertx;
-import org.vertx.java.deploy.impl.VerticleManager;
+import org.vertx.java.platform.PlatformManager;
+import org.vertx.java.platform.impl.DefaultPlatformManagerFactory;
 import org.vertx.java.test.TestVerticle;
 import org.vertx.java.test.TestVerticles;
 import org.vertx.java.test.utils.QueueReplyHandler;
@@ -36,9 +36,7 @@ import org.vertx.java.test.utils.QueueReplyHandler;
  */
 public class VerticleMethodRuleTest {
 
-  private final DefaultVertx vertx = new DefaultVertx();
-
-  private final VerticleManager manager = new VerticleManager(vertx);
+  private final PlatformManager manager = new DefaultPlatformManagerFactory().createPlatformManager();
 
   @Rule
   public VertxExternalResource rule = new VertxExternalResource(manager);
@@ -46,7 +44,7 @@ public class VerticleMethodRuleTest {
   private long timeout = 10L;
 
   public Vertx getVertx() {
-    return vertx;
+    return manager.getVertx();
   }
 
   @Before

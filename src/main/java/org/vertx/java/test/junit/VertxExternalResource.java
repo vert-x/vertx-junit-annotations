@@ -22,9 +22,8 @@ import java.util.Map;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.vertx.java.deploy.impl.VerticleManager;
+import org.vertx.java.platform.PlatformManager;
 import org.vertx.java.test.utils.DeploymentRegistry;
-import org.vertx.java.test.utils.DeploymentUtils;
 
 /**
  * @author swilliams
@@ -34,14 +33,14 @@ public class VertxExternalResource extends ExternalResource {
 
   private File modDir;
 
-  private VerticleManager manager;
+  private PlatformManager platformManager;
 
   private Description description;
 
   private Map<Annotation, String> methodDeployments;
 
-  public VertxExternalResource(VerticleManager manager) {
-    this.manager = manager;
+  public VertxExternalResource(PlatformManager platformManager) {
+    this.platformManager = platformManager;
   }
 
   @Override
@@ -59,7 +58,7 @@ public class VertxExternalResource extends ExternalResource {
   @Override
   protected void before() throws Throwable {
     long timeout = Long.getLong("vertx.test.timeout", 15000L);
-    this.methodDeployments = JUnitDeploymentUtils.deploy(manager, modDir, description, timeout);
+    this.methodDeployments = JUnitDeploymentUtils.deploy(platformManager, modDir, description, timeout);
     DeploymentRegistry.register(methodDeployments);
     super.before();
   }
@@ -67,7 +66,7 @@ public class VertxExternalResource extends ExternalResource {
   @Override
   protected void after() {
     if (methodDeployments.size() > 0) {
-      DeploymentUtils.undeploy(manager, methodDeployments);
+      // DeploymentUtils.undeploy(container, methodDeployments);
     }
     super.after();
     DeploymentRegistry.clear();

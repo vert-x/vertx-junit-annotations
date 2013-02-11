@@ -35,6 +35,8 @@ public @interface TestVerticle {
 
   boolean worker() default false;
 
+  boolean multiThreaded() default false;
+
   String main();
 
   int instances() default 1;

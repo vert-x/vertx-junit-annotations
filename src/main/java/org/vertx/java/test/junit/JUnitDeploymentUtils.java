@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.runner.Description;
-import org.vertx.java.deploy.impl.VerticleManager;
+import org.vertx.java.platform.PlatformManager;
 import org.vertx.java.test.TestModule;
 import org.vertx.java.test.TestModules;
 import org.vertx.java.test.TestVerticle;
@@ -41,7 +41,7 @@ public class JUnitDeploymentUtils {
    * @param description
    * @return map
    */
-  public static Map<Annotation, String> deploy(VerticleManager manager, File modDir, Description description, long timeout) {
+  public static Map<Annotation, String> deploy(PlatformManager platformManager, File modDir, Description description, long timeout) {
 
     Map<Annotation, String> deployments = new HashMap<>();
 
@@ -60,7 +60,7 @@ public class JUnitDeploymentUtils {
       }
     }
 
-    Map<Annotation, String> verticleDeployments = DeploymentUtils.deployVerticles(manager, modDir, verticles, timeout);
+    Map<Annotation, String> verticleDeployments = DeploymentUtils.deployVerticles(platformManager, modDir, verticles, timeout);
     deployments.putAll(verticleDeployments);
 
     // ------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ public class JUnitDeploymentUtils {
       }
     }
 
-    Map<Annotation, String> modulesDeployments = DeploymentUtils.deployModules(manager, modDir, modules, timeout);
+    Map<Annotation, String> modulesDeployments = DeploymentUtils.deployModules(platformManager, modDir, modules, timeout);
     deployments.putAll(modulesDeployments);
 
     // ------------------------------------------------------------------------------

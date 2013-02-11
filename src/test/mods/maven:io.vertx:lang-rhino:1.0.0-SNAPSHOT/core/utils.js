@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2011-2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.java.test.junit;
 
-import org.junit.Assert;
+var vertx = vertx || {};
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.vertx.java.test.VertxConfiguration;
-import org.vertx.java.test.VertxTestBase;
-
-
-@RunWith(VertxJUnit4ClassRunner.class)
-@VertxConfiguration(modsDir="src/test/mods-foo")
-public class VertxConfigurationTest extends VertxTestBase {
-
-  @Test
-  public void testModsDirIsSet() {
-    Assert.assertTrue(System.getProperty("vertx.mods").endsWith("src/test/mods-foo"));
+if (!vertx.generateUUID) {
+  vertx.generateUUID = function () {
+    return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(a,b){return b=Math.random()*16,(a=="y"?b&3|8:b|0).toString(16)})
   }
-
 }

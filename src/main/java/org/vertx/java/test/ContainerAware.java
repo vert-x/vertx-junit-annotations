@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.java.test.junit;
+package org.vertx.java.test;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.vertx.java.test.VertxConfiguration;
-import org.vertx.java.test.VertxTestBase;
+import org.vertx.java.platform.Container;
 
 
-@RunWith(VertxJUnit4ClassRunner.class)
-@VertxConfiguration(modsDir="src/test/mods-foo")
-public class VertxConfigurationTest extends VertxTestBase {
+/**
+ * @author swilliams
+ *
+ */
+public interface ContainerAware {
 
-  @Test
-  public void testModsDirIsSet() {
-    Assert.assertTrue(System.getProperty("vertx.mods").endsWith("src/test/mods-foo"));
-  }
+  void setContainer(Container container);
 
 }

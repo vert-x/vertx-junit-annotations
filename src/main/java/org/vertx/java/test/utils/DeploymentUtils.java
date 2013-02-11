@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.deploy.impl.VerticleManager;
+import org.vertx.java.platform.PlatformManager;
 import org.vertx.java.test.TestModule;
 import org.vertx.java.test.TestVerticle;
 
@@ -48,7 +48,7 @@ public class DeploymentUtils {
 
   private static final Logger LOG = Logger.getLogger(DeploymentUtils.class.getName());
 
-  public static Map<Annotation, String> deployVerticles(VerticleManager manager, File modDir, Set<TestVerticle> verticles, long timeout) {
+  public static Map<Annotation, String> deployVerticles(PlatformManager platformManager, File modDir, Set<TestVerticle> verticles, long timeout) {
     Map<Annotation, String> deployments = new HashMap<>();
 
     if (verticles.size() > 0) {
@@ -56,19 +56,23 @@ public class DeploymentUtils {
       Map<TestVerticle, DeploymentHandler> handlers = new HashMap<>();
 
       for (TestVerticle v : verticles) {
-        DeploymentHandler handler = new DeploymentHandler(latch);
-        handlers.put(v, handler);
+        DeploymentHandler doneHandler = new DeploymentHandler(latch);
 
         JsonObject config = getJsonConfig(v.jsonConfig());
-        URL[] urls = findVerticleURLs(v);
+        URL[] classpath = findVerticleURLs(v);
 
         LOG.log(Level.FINE, "deployVerticle(%s)%n", v);
 
         // we are having to set null here which is not that clever
         String includes = ("".equals(v.includes())) ? null : v.includes();
         try {
-          manager.deployVerticle(v.worker(), v.main(), config, urls, v.instances(), modDir, includes, handler);
-//          deployments.put(v, handler.getDeploymentID());
+          if (v.worker()) {
+            platformManager.deployWorkerVerticle(v.multiThreaded(), v.main(), config, classpath, v.instances(), includes, doneHandler);
+          }
+          else {
+            platformManager.deployVerticle(v.main(), config, classpath, v.instances(), includes, doneHandler);
+          }
+          handlers.put(v, doneHandler);
         } catch (Throwable e) {
           e.printStackTrace();
           LOG.log(Level.WARNING, String.format("Problem deploying (%s) %n", v), e);
@@ -89,7 +93,7 @@ public class DeploymentUtils {
     return deployments;
   }
 
-  public static Map<Annotation, String> deployModules(VerticleManager manager, File modDir, Set<TestModule> modules, long timeout) {
+  public static Map<Annotation, String> deployModules(PlatformManager platformManager, File modDir, Set<TestModule> modules, long timeout) {
     Map<Annotation, String> deployments = new HashMap<>();
 
     if (modules.size() > 0) {
@@ -104,7 +108,7 @@ public class DeploymentUtils {
 
         LOG.log(Level.FINE, "deployModule(%s)%n", m);
         try {
-          manager.deployMod(m.name(), config, m.instances(), modDir, handler);
+          platformManager.deployModule(m.name(), config, m.instances(), handler);
         } catch (Throwable e) {
           e.printStackTrace();
           LOG.log(Level.WARNING, String.format("Problem deploying (%s) %n", m), e);
@@ -126,17 +130,16 @@ public class DeploymentUtils {
     return deployments;
   }
 
-  public static void undeploy(VerticleManager manager, Map<Annotation, String> deployments) {
+  public static void undeploy(PlatformManager container, Map<Annotation, String> deployments) {
 
     final CountDownLatch latch = new CountDownLatch(deployments.size());
-    Map<String, Integer> instances = manager.listInstances();
 
     for (Annotation a : deployments.keySet()) {
       final String id = deployments.get(a);
 
-      if (id != null && instances.containsKey(id)) {
+      if (id != null) {
         try {
-          manager.undeploy(id, new Handler<Void>() {
+          container.undeploy(id, new Handler<Void>() {
             @Override
             public void handle(Void event) {
               LOG.log(Level.FINE, String.format("DeploymentUtils undeployed (%s) %n", id));
@@ -159,6 +162,7 @@ public class DeploymentUtils {
       String filename = jsonConfig.replaceFirst("file:", "");
 
       try {
+        // TCCL may be problematic
         URL url = Thread.currentThread().getContextClassLoader().getResource(filename);
         Path json = Paths.get(url.toURI());
         Charset utf8 = Charset.forName("UTF-8");
