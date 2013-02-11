@@ -63,7 +63,7 @@ public class SimpleEchoTest implements VertxAware {
       }});
     
     try {
-      Thread.sleep(1000L);
+      Thread.sleep(1000L); // FIXME this sucks
     } catch (InterruptedException e) {
       //
     }

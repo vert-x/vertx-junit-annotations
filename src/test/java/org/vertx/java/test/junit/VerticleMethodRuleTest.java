@@ -51,7 +51,7 @@ public class VerticleMethodRuleTest {
   public void setup() {
     this.timeout = Long.parseLong(System.getProperty("vertx.test.timeout", "15L"));
     try {
-      Thread.sleep(2000L);
+      Thread.sleep(1000L); // FIXME this sucks
     } catch (InterruptedException e) {
       //
     }

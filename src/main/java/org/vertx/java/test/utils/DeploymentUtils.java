@@ -57,6 +57,7 @@ public class DeploymentUtils {
 
       for (TestVerticle v : verticles) {
         DeploymentHandler doneHandler = new DeploymentHandler(latch);
+        handlers.put(v, doneHandler);
 
         JsonObject config = getJsonConfig(v.jsonConfig());
         URL[] classpath = findVerticleURLs(v);
@@ -65,6 +66,7 @@ public class DeploymentUtils {
 
         // we are having to set null here which is not that clever
         String includes = ("".equals(v.includes())) ? null : v.includes();
+
         try {
           if (v.worker()) {
             platformManager.deployWorkerVerticle(v.multiThreaded(), v.main(), config, classpath, v.instances(), includes, doneHandler);
@@ -72,15 +74,20 @@ public class DeploymentUtils {
           else {
             platformManager.deployVerticle(v.main(), config, classpath, v.instances(), includes, doneHandler);
           }
-          handlers.put(v, doneHandler);
         } catch (Throwable e) {
           e.printStackTrace();
           LOG.log(Level.WARNING, String.format("Problem deploying (%s) %n", v), e);
-          latch.countDown();
         }
+        finally {
+          //
+        }
+        System.out.println("latch: " + latch.getCount());
       }
 
+      System.out.println("latch: " + latch.getCount());
+
       await(latch);
+      
       // await(latch, timeout); // Eh?
 
       Set<Entry<TestVerticle, DeploymentHandler>> entrySet = handlers.entrySet();
