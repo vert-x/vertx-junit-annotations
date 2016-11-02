@@ -1,14 +1,16 @@
-# JUnit Annotations for vert.x
+# Vert.x 2.x is **deprecated** - use instead http://vertx.io/docs/#testing
+
+## JUnit Annotations for vert.x
 
 A JUnit Test Runner for vert.x and some utility annotations for launching integration tests.
 
 [![Build Status](https://travis-ci.org/vert-x/vertx-junit-annotations.png?branch=master)](https://travis-ci.org/vert-x/vertx-junit-annotations)
 
-## Classpath Setup
+### Classpath Setup
 
 IMPORTANT: The embedded vert.x instance will throw an exception if any of the verticles or modules you're testing are on the same classpath.  This means that you must take care to ensure that the compile classpath for your application (if one exists) is not present in the integration test classpath.
 
-### Maven coordinates
+#### Maven coordinates
 
 The vertx-junit-annotations JAR is in Maven Central at the following coordinates (in Gradle form).
 
@@ -23,7 +25,7 @@ and in Maven form:
        <scope>test</scope>
     </dependency>
 
-### Source Code Layout
+#### Source Code Layout
 
 This utility is aimed at integration testing, rather than unit testing.  For this reason and because of the classpath requirements described above, it is recommended that the source for your integration tests should be in a separate source path than the main and test code.
 
@@ -40,9 +42,9 @@ The following convention is recommended:
 
 This means that you can apply fine-grained control to the classpath and still perform unit tests on your code.
 
-## Test Configuration
+### Test Configuration
 
-### Starting the vert.x node
+#### Starting the vert.x node
 
 Once you've added the JAR to your integration test classpath, you should annotate each test class with the @RunWith annotation, with the vert.x JUnit Class Runner implementation: VertxJUnit4ClassRunner.class.
 
@@ -60,7 +62,7 @@ To start a clustered vert.x node, set the port and hostname attributes of the @V
       ...
     }
 
-### Test class implementations
+#### Test class implementations
 
 Implement VertxAware in your test class and VertxJUnit4ClassRunner will provide the same Vertx instance that is being used to start verticles and modules found in annotations:
 
@@ -100,9 +102,9 @@ Finally, extend VertxTestBase which implements both interfaces described above a
       ...
     }
 
-## Launching
+### Launching
 
-### Testing a Verticle
+#### Testing a Verticle
 
 You can annotate a class:
 
@@ -129,7 +131,7 @@ If you annotate a class, the verticle starts before any other method is executed
 
 A verticle started through an method annotation starts before the method is executed and is automatically stopped afterwards.
 
-### Testing a Module
+#### Testing a Module
 
 Just like the @TestVerticle annotation, @TestModule can be placed on the class:
 
@@ -152,7 +154,7 @@ and it can also annotate a method:
       ...
     }
 
-## Usage
+### Usage
 
 See the [Wiki](https://github.com/vert-x/vertx-junit-annotations/wiki) for sample project builds.
 
